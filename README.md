@@ -7,7 +7,7 @@ Required launched PostgreSQL and installed Python3.10
 
 * copy config template
 ```bash
-cp -r config_dist config
+cp -r config config
 ```
 * Fill config/config.yml in with required values 
 * Create and activate venv
