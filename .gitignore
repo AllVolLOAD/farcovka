@@ -137,6 +137,7 @@ dmypy.json
 *.sqlite3
 /config/jsons/
 /app/models
+/reset_o4ered.py
 
 # logs
 /log

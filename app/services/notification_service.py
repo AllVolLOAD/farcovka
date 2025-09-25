@@ -8,9 +8,46 @@ logger = logging.getLogger(__name__)
 
 
 class NotificationService:
-    def __init__(self, bot: Bot, config: BotConfig):
+    def __init__(self, bot, session):
         self.bot = bot
-        self.config = config
+        self.session = session
+
+    async def notify_queue_users_rate_updated(self, new_rates_message: str):
+        """Уведомляет всех пользователей в очереди об обновлении курса"""
+        try:
+            from app.services.queue_service import QueueService
+            from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+            queue_service = QueueService(self.session)
+            queue_users = await queue_service.get_queue_users()
+
+            logger.info("Отправка уведомлений %d пользователям в очереди", len(queue_users))
+
+            # Создаем клавиатуру с кнопкой обновления
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🔄 Обновить табло", callback_data="refresh_table")]
+            ])
+
+            for user_id in queue_users:
+                try:
+                    # Отправляем обновленное табло с кнопкой
+                    await self.bot.send_message(
+                        chat_id=user_id,
+                        text=new_rates_message,                        reply_markup=keyboard,
+                        parse_mode="Markdown"
+                    )
+                    logger.info("✅ Уведомление отправлено пользователю %s", user_id)
+
+                except Exception as e:
+                    logger.error("❌ Ошибка отправки пользователю %s: %s", user_id, e)
+
+            # Очищаем очередь после уведомления
+            await queue_service.clear_queue()
+            logger.info("✅ Очередь очищена")
+
+        except Exception as e:
+            logger.error("❌ Ошибка уведомления очереди: %s", e)
+
 
     async def notify_admins_queue_full(self, session: AsyncSession):
         """Уведомляем админов с текущими курсами"""

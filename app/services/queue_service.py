@@ -1,11 +1,11 @@
+from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from app.models.queue import QueueEntry
 from datetime import datetime, timedelta
 import logging
 
 logger = logging.getLogger(__name__)
-
 
 class QueueService:
     def __init__(self, session: AsyncSession):
@@ -35,13 +35,13 @@ class QueueService:
             await self.session.commit()
 
             queue_size = await self.get_queue_size()
-            logger.info(f"User {user_id} added to queue. Queue size: {queue_size}")
+            logger.info("User %s added to queue. Queue size: %s", user_id, queue_size)
 
             return True, queue_size
 
         except Exception as e:
             await self.session.rollback()
-            logger.error(f"Error adding user {user_id} to queue: {e}")
+            logger.error("Error adding user %s to queue: %s", user_id, e)
             return False, 0
 
     async def get_queue_size(self) -> int:
@@ -63,9 +63,23 @@ class QueueService:
         result = await self.session.scalars(query)
         return result.all()
 
-    async def clear_queue(self):
-        """Очищает очередь (после обновления курса)"""
+    async def get_queue_users(self) -> List[int]:
+        """Возвращает список ID пользователей в очереди"""
         try:
+            query = select(QueueEntry.user_id).where(
+                QueueEntry.is_processed == False,
+                QueueEntry.created_at >= datetime.utcnow() - timedelta(hours=1)
+            )
+            result = await self.session.scalars(query)
+            return list(result)  # Исправлено: используем QueueEntry.user_id
+        except Exception as e:
+            logger.error("Ошибка получения очереди: %s", e)
+            return []
+
+    async def clear_queue(self):
+        """Очищает очередь"""
+        try:
+            # Помечаем все записи как обработанные вместо удаления
             query = select(QueueEntry).where(QueueEntry.is_processed == False)
             entries = await self.session.scalars(query)
 
@@ -74,7 +88,6 @@ class QueueService:
 
             await self.session.commit()
             logger.info("Queue cleared successfully")
-
         except Exception as e:
             await self.session.rollback()
-            logger.error(f"Error clearing queue: {e}")
+            logger.error("Error clearing queue: %s", e)

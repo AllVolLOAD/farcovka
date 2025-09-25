@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Dict, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from app.models.multi_rate import ExchangeRate
 
 logger = logging.getLogger(__name__)
@@ -108,3 +108,32 @@ class MultiRateService:
                 )
                 results[rate_data['pair']] = success
             return results
+
+    async def remove_rate(self, pair: str) -> bool:
+        """Удаляет конкретную пару из базы"""
+        try:
+            query = select(ExchangeRate).where(ExchangeRate.pair == pair)
+            rate = await self.session.scalar(query)
+
+            if rate:
+                await self.session.delete(rate)
+                await self.session.commit()
+                logger.info("✅ Пара %s удалена", pair)
+                return True
+            return False
+        except Exception as e:
+            await self.session.rollback()
+            logger.error("❌ Ошибка удаления пары %s: %s", pair, e)
+            return False
+
+    async def clear_all_rates(self) -> bool:
+        """Очищает все курсы"""
+        try:
+            await self.session.execute(delete(ExchangeRate))
+            await self.session.commit()
+            logger.info("✅ Все курсы очищены")
+            return True
+        except Exception as e:
+            await self.session.rollback()
+            logger.error("❌ Ошибка очистки курсов: %s", e)
+            return False
