@@ -9,10 +9,8 @@ class ExchangeRate(Base):
     __tablename__ = 'exchange_rates'
 
     id = Column(Integer, primary_key=True)
-    pair = Column(String(20), nullable=False, unique=True)  # 'RUB/USD', 'USD/USDT'
-    rate = Column(Float, nullable=False)
+    pair = Column(String(20), nullable=False, unique=True)  # 'USD/RUB'
+    buy_rate = Column(Float, nullable=False)  # ← ДОБАВИТЬ
+    sell_rate = Column(Float, nullable=False)  # ← ДОБАВИТЬ
     last_updated = Column(DateTime, default=datetime.utcnow)
     last_admin_id = Column(BigInteger)
-
-    def __repr__(self):
-        return f"ExchangeRate(pair={self.pair}, rate={self.rate})"

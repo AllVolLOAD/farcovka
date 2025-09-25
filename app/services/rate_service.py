@@ -3,6 +3,7 @@ from sqlalchemy import select
 from app.models.rate import CurrentRate
 import logging
 
+
 logger = logging.getLogger(__name__)
 
 

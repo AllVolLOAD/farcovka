@@ -107,6 +107,57 @@ async def notify_waiting_users(bot, new_rate: float, session: AsyncSession):
         logger.error(f"❌ Ошибка уведомления: {e}")
 
 # Обработчики
+async def handle_rates_bulk(message: Message, session: AsyncSession, text: str):
+    """Обрабатывает пакетное обновление курсов"""
+    try:
+        lines = text.strip().split('\n')
+        rates_to_update = {}
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Парсим: USD/RUB 82.80 83.50
+            parts = line.split()
+            if len(parts) == 3:
+                pair = parts[0]  # USD/RUB
+                buy_rate = float(parts[1])
+                sell_rate = float(parts[2])
+
+                rates_to_update[f"{pair}_BUY"] = buy_rate
+                rates_to_update[f"{pair}_SELL"] = sell_rate
+
+        if not rates_to_update:
+            await message.answer("❌ Не найдены курсы. Формат:\nUSD/RUB 82.80 83.50\nEUR/RUB 98.40 99.20")
+            return
+
+        # Обновляем в БД
+        from app.services.multi_rate_service import MultiRateService
+        multi_service = MultiRateService(session)
+
+        updated_count = 0
+        for pair_key, rate in rates_to_update.items():
+            if await multi_service.update_rate(pair_key, rate, message.from_user.id):
+                updated_count += 1
+
+        if updated_count > 0:
+            # Очищаем очередь
+            from app.services.queue_service import QueueService
+            queue_service = QueueService(session)
+            await queue_service.clear_queue()
+
+            # Уведомляем пользователей
+            await notify_waiting_users(message.bot, "все курсы", session)
+
+            await message.answer(f"✅ Обновлено {updated_count} курсов")
+        else:
+            await message.answer("❌ Ошибка обновления")
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка парсинга: {e}")
+        await message.answer("❌ Ошибка формата. Пример:\nUSD/RUB 82.80 83.50\nEUR/RUB 98.40 99.20")
+
 @admin_router.message(F.text)
 async def handle_admin_messages(message: Message, session: AsyncSession):
     if not is_admin(message.from_user.id):
@@ -114,32 +165,26 @@ async def handle_admin_messages(message: Message, session: AsyncSession):
 
     text = message.text.strip()
 
+    # Быстрый ввод числа - обновляем основной курс
     if text.replace('.', '').isdigit():
         try:
             new_rate = float(text)
-            logger.info(f"💰 Админ ввел курс: {new_rate}")
+            logger.info(f"💰 Админ ввел основной курс: {new_rate}")
 
-            from app.services.rate_service import RateService
+            from app.services.multi_rate_service import MultiRateService
             from app.services.queue_service import QueueService
 
-            rate_service = RateService(session)
-            success = await rate_service.update_rate(new_rate, message.from_user.id)
+            multi_service = MultiRateService(session)
+            success = await multi_service.update_rate("USD/RUB", new_rate, new_rate * 1.01, message.from_user.id)
 
             if success:
-                # 1. Получаем пользователей ДО очистки
                 queue_service = QueueService(session)
                 waiting_users = await queue_service.get_waiting_users()
 
-                # 2. Уведомляем пользователей из очереди
                 await notify_waiting_users(message.bot, new_rate, session)
-
-                # 3. ОТПРАВЛЯЕМ НОВЫЕ ТАБЛО
-                await send_new_table_to_all_users(message.bot, new_rate, session)
-
-                # 4. Очищаем очередь
                 await queue_service.clear_queue()
 
-                await message.answer(f"✅ Курс обновлен: {new_rate} RUB\nНовые табло отправлены пользователям")
+                await message.answer(f"✅ Основной курс RUB/USD обновлен: {new_rate}")
             else:
                 await message.answer("❌ Ошибка обновления курса")
 
