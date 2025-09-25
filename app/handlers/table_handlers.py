@@ -1,6 +1,5 @@
 import logging
 from aiogram import Router, F
-from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,109 +9,81 @@ from app.keyboards.main_menu import get_main_keyboard
 
 logger = logging.getLogger(__name__)
 
+# Создаем роутер
+router = Router()
+user_last_table_message = {}
 
-# Роутер создается при вызове функции
-def get_table_router():
-    router = Router(name="table_router")
-
-    @router.message(Command("start"))
-    async def table_start(message: Message, session: AsyncSession, config: BotConfig):
-        logger.info(f"🎯 TABLE START from user {message.from_user.id}")
-        try:
-            rate_service = RateService(session)
-            message_text = await rate_service.format_rate_message()
-            await message.answer(message_text, reply_markup=get_main_keyboard())
-        except Exception as e:
-            logger.error(f"❌ Ошибка БД: {e}")
-            await message.answer("🏦 Текущий курс: 95.50 RUB\n\n(режим без БД)", reply_markup=get_main_keyboard())
-
-    @router.callback_query(F.data == "update_rate")
-    async def table_update_rate(
-            callback: CallbackQuery,
-            session: AsyncSession,
-            config: BotConfig
-    ):
-        """Обработчик кнопки 'Обновить курс' с уведомлениями"""
-        try:
-            from app.services.queue_service import QueueService
-            from app.services.notification_service import NotificationService
-
-            queue_service = QueueService(session)
-            notification_service = NotificationService(callback.bot, config)
-
-            username = callback.from_user.username or callback.from_user.full_name
-            success, queue_size = await queue_service.add_to_queue(
-                callback.from_user.id,
-                username
-            )
-
-            if success:
-                # Проверяем нужно ли уведомлять админов
-                await notification_service.notify_admins_queue_full()
-
-                if queue_size >= 3:
-                    await callback.answer(
-                        f"✅ Очередь заполнена! Администратор осознает факт, что вы не один ждете",
-                        show_alert=True
-                    )
-                else:
-                    await callback.answer(
-                        f"✅ Вы в очереди! Ожидающих: {queue_size}/3",
-                        show_alert=True
-                    )
-            else:
-                await callback.answer(
-                    "⚠️ Вы уже в очереди! Ожидайте обновления",
-                    show_alert=True
-                )
+user_last_table_message = {}
 
 
-        except Exception as e:
+@router.message(Command("start"))
+async def table_start(message: Message, session: AsyncSession, config: BotConfig):
+    """Показывает/обновляет табло"""
+    try:
+        rate_service = RateService(session)
+        message_text = await rate_service.format_rate_message()
 
-            logger.error(f"Ошибка очереди: {e}")
+        user_id = message.from_user.id
 
+        # Если есть предыдущее табло - редактируем его
+        if user_id in user_last_table_message:
             try:
+                await message.bot.edit_message_text(
+                    chat_id=user_id,
+                    message_id=user_last_table_message[user_id],
+                    text=message_text,
+                    reply_markup=get_main_keyboard(),
+                    parse_mode="HTML"
+                )
+                logger.info(f"✏️ Табло отредактировано для пользователя {user_id}")
+                return
+            except Exception as e:
+                # Если редактирование не удалось, удаляем из кэша
+                del user_last_table_message[user_id]
+                logger.warning(f"⚠️ Не удалось отредактировать табло: {e}")
 
-                await callback.message.answer("🔄 Ошибка системы, попробуйте позже")
-
-            except:
-
-                pass
-
-
-    @router.callback_query(F.data == "fix_rate")
-    async def table_fix_rate(callback: CallbackQuery, session: AsyncSession):
-        await callback.answer("📊 Курс зафиксирован!", show_alert=True)
-
-    @router.message(Command("debug_config"))
-    async def debug_config(message: Message, config: BotConfig):
-        """Показывает текущую конфигурацию"""
-        superusers = getattr(config, 'superusers', [])
-        await message.answer(
-            f"🔧 <b>Конфигурация бота:</b>\n"
-            f"👑 Суперпользователи: {superusers}\n"
-            f"📊 Тип: {type(superusers)}",
+        # Отправляем новое сообщение
+        new_message = await message.answer(
+            message_text,
+            reply_markup=get_main_keyboard(),
             parse_mode="HTML"
         )
+        user_last_table_message[user_id] = new_message.message_id
+        logger.info(f"📄 Новое табло создано для пользователя {user_id}")
 
-    @router.message(Command("myid"))
-    async def get_my_id(message: Message):
-        """Команда для получения своего ID"""
-        await message.answer(
-            f"🆔 Ваш Telegram ID: <code>{message.from_user.id}</code>\n"
-            f"📛 Username: @{message.from_user.username or 'нет'}\n"
-            f"👤 Имя: {message.from_user.full_name}",
-            parse_mode="HTML"
-        )
+    except Exception as e:
+        logger.error(f"❌ Ошибка табло: {e}")
+@router.callback_query(F.data == "update_rate")
+async def update_rate_handler(callback: CallbackQuery, session: AsyncSession, config: BotConfig):
+    """Обработчик кнопки 'Обновить курс'"""
+    try:
+        from app.services.queue_service import QueueService
+        from app.services.notification_service import NotificationService
 
-    @router.message(Command("admin_info"))
-    async def admin_info(message: Message, config: BotConfig):
-        """Показывает информацию о админах"""
-        superusers = getattr(config, 'superusers', 'Не найдено')
-        await message.answer(
-            f"👑 Superusers: {superusers}\n"
-            f"🆔 Твой ID: {message.from_user.id}",
-            parse_mode="HTML"
-        )
+        queue_service = QueueService(session)
+        notification_service = NotificationService(callback.bot, config)
 
-    return router
+        username = callback.from_user.username or callback.from_user.full_name
+        success, queue_size = await queue_service.add_to_queue(callback.from_user.id, username)
+
+        if success:
+            await notification_service.notify_admins_queue_full()
+
+            if queue_size >= 3:
+                message = "✅ Очередь заполнена! Админ уведомлен"
+            else:
+                message = f"✅ Вы в очереди! Ожидающих: {queue_size}/3"
+        else:
+            message = "⚠️ Вы уже в очереди!"
+
+        await callback.answer(message, show_alert=True)
+
+    except Exception as e:
+        logger.error(f"Ошибка очереди: {e}")
+        await callback.answer("🔄 Ошибка системы", show_alert=True)
+
+
+@router.callback_query(F.data == "fix_rate")
+async def fix_rate_handler(callback: CallbackQuery):
+    """Обработчик кнопки 'Зафиксировать'"""
+    await callback.answer("📊 Функция скоро будет доступна!", show_alert=True)
