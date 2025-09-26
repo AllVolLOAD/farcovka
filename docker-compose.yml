@@ -1,54 +1,74 @@
 version: '3.8'
 
 services:
-  template_bot:
+  app:
     build: .
-    container_name: template_bot
+    container_name: farcovka_bot
     restart: unless-stopped
     volumes:
-      - ${HOME}/TemplateBot/log:/log
-      - ./config:/config
-    env_file: config/.env
-    networks:
-      - reverse-proxy
-      - botapi
+      - ./logs:/app/logs
+      - ./config:/app/config
+    env_file:
+      - .env.prod
     depends_on:
+      - db
       - telegram-bot-api
+    networks:
+      - app-network
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:3000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  db:
+    image: postgres:13
+    container_name: farcovka_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: facovka00
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ваш_пароль
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+
   telegram-bot-api:
     image: aiogram/telegram-bot-api:latest
+    container_name: telegram_bot_api
+    restart: unless-stopped
     environment:
       TELEGRAM_API_ID: "6"
       TELEGRAM_API_HASH: "eb06d4abfb49dc3eeb1aeb98ae0f581e"
       TELEGRAM_LOCAL: 1
     volumes:
-      - telegram-bot-api-data:/var/lib/telegram-bot-api
+      - telegram-api-data:/var/lib/telegram-bot-api
     networks:
-      - botapi
-    restart: unless-stopped
+      - app-network
 
   nginx:
     image: nginx:alpine
+    container_name: farcovka_nginx
+    restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - telegram-bot-api-data:/var/lib/telegram-bot-api:ro
-    networks:
-      - botapi
-      - reverse-proxy
+      - telegram-api-data:/var/lib/telegram-bot-api:ro
+    ports:
+      - "80:80"
+      - "443:443"
     depends_on:
       - telegram-bot-api
-    restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
-  telegram-bot-api-data:
+  postgres_data:
+  telegram-api-data:
 
 networks:
-  reverse-proxy:
-    external: true
-  botapi:
+  app-network:
     driver: bridge

@@ -1,17 +1,20 @@
-FROM python:3.11-slim-buster as builder
+FROM python:3.11-slim
 
 WORKDIR /app
+
+# Копируем зависимости сначала (для кэширования)
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
 
-FROM python:3.11-slim-buster
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
-COPY --from=builder /root/.local /root/.local
-COPY app app
+# Копируем остальное приложение
+COPY app/ ./app/
+COPY alembic.ini .
+COPY migrations/ ./migrations/
+COPY scripts/ ./scripts/
 
-ENV PATH=/root/.local/bin:$PATH
-VOLUME /log /config
-EXPOSE 3000
+# Создаем директории
+RUN mkdir -p /app/logs
 
-ENTRYPOINT ["python", "-m", "app"]
+CMD ["sh", "-c", "alembic upgrade head && python -m app"]влл
