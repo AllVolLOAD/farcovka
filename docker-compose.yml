@@ -1,25 +1,24 @@
-version: '3.2'
+version: '3.8'
 
 services:
-
   template_bot:
+    build: .
     container_name: template_bot
-    restart: always
-    image: bomzheg/aiogram_template
+    restart: unless-stopped
     volumes:
-      - type: "bind"
-        source: "${HOME}/TemplateBot/log"
-        target: "/log"
-      - type: "bind"
-        source: "./config"
-        target: "/config"
+      - ${HOME}/TemplateBot/log:/log
+      - ./config:/config
     env_file: config/.env
-    entrypoint: [ "python3", "-m", "app"]
     networks:
       - reverse-proxy
       - botapi
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      - telegram-bot-api
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:3000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   telegram-bot-api:
     image: aiogram/telegram-bot-api:latest
@@ -31,20 +30,25 @@ services:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
     networks:
       - botapi
+    restart: unless-stopped
 
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     volumes:
-      - telegram-bot-api-data:/usr/share/nginx/html/var/lib/telegram-bot-api:ro
-    environment:
-      - NGINX_PORT=80
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - telegram-bot-api-data:/var/lib/telegram-bot-api:ro
     networks:
       - botapi
+      - reverse-proxy
+    depends_on:
+      - telegram-bot-api
+    restart: unless-stopped
 
 volumes:
   telegram-bot-api-data:
 
 networks:
   reverse-proxy:
-    external:
-      name: nginx-revers-proxy
+    external: true
+  botapi:
+    driver: bridge
