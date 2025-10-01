@@ -1,6 +1,11 @@
 import asyncio
 import sys
 import os
+from dotenv import load_dotenv
+
+# Загружаем переменные из .env
+load_dotenv()
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 async def create_queue_table():
@@ -8,7 +13,11 @@ async def create_queue_table():
         from sqlalchemy.ext.asyncio import create_async_engine
         from app.models.queue import QueueEntry, Base
 
-        DATABASE_URL = "postgresql+asyncpg://postgres:Zahodim88@localhost:5432/facovka00"
+        # Берем URL из переменных окружения
+        DATABASE_URL = os.getenv("DATABASE_URL")
+        if not DATABASE_URL:
+            raise ValueError("DATABASE_URL не найден в .env файле")
+
         engine = create_async_engine(DATABASE_URL, echo=True)
 
         async with engine.begin() as conn:

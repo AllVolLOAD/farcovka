@@ -1,18 +1,17 @@
-FROM python:3.11-buster as builder
-COPY requirements.txt requirements.txt
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-RUN pip install --no-cache-dir -r requirements.txt
+FROM python:3.11-slim-buster as builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
 FROM python:3.11-slim-buster
-LABEL maintainer="bomzheg <bomzheg@gmail.com>" \
-      description="Template Telegram Bot"
-ENV VIRTUAL_ENV=/opt/venv
-COPY --from=builder $VIRTUAL_ENV $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-VOLUME /log
-VOLUME /config
-EXPOSE 3000
+
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
 COPY app app
-ENTRYPOINT ["python3", "-m", "app"]
+
+ENV PATH=/root/.local/bin:$PATH
+VOLUME /log /config
+EXPOSE 3000
+
+ENTRYPOINT ["python", "-m", "app"]
