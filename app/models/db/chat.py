@@ -1,35 +1,15 @@
-from sqlalchemy import Enum, BigInteger
-from sqlalchemy.orm import mapped_column, Mapped
-
-from app.enums.chat_type import ChatType
-from app.models import dto
-from app.models.db.base import Base
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.sql import func
+from app.models.db import Base
 
 
 class Chat(Base):
     __tablename__ = "chats"
-    __mapper_args__ = {"eager_defaults": True}
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
-    type: Mapped[ChatType] = mapped_column(Enum(ChatType))
-    title: Mapped[str]
-    username: Mapped[str | None]
 
-    def __repr__(self):
-        rez = (
-            f"<Chat "
-            f"ID={self.tg_id} "
-            f"title={self.title} "
-        )
-        if self.username:
-            rez += f"username=@{self.username}"
-        return rez + ">"
-
-    def to_dto(self) -> dto.Chat:
-        return dto.Chat(
-            db_id=self.id,
-            tg_id=self.tg_id,
-            type=self.type,
-            title=self.title,
-            username=self.username,
-        )
+    id = Column(Integer, primary_key=True, index=True)
+    telegram_id = Column(Integer, unique=True, index=True)
+    title = Column(String, nullable=True)
+    type = Column(String, nullable=True)  # "private", "group", "supergroup", "channel"
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

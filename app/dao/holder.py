@@ -1,19 +1,19 @@
-from dataclasses import dataclass, field
-
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.dao.user import UserDAO
+from app.dao.chat import ChatDAO
+from app.dao.queue import QueueDAO
+from app.dao.parsed_rate import ParsedRateDAO
 
-from app.dao import UserDAO, ChatDAO
-
-
-@dataclass
 class HolderDao:
-    session: AsyncSession
-    user: UserDAO = field(init=False)
-    chat: ChatDAO = field(init=False)
-
-    def __post_init__(self):
-        self.user = UserDAO(self.session)
-        self.chat = ChatDAO(self.session)
+    def __init__(self, session: AsyncSession):
+        self.session = session
+        self.user = UserDAO(session)
+        self.chat = ChatDAO(session)
+        self.queue = QueueDAO(session)
+        self.parsed_rate = ParsedRateDAO(session)
 
     async def commit(self):
         await self.session.commit()
+
+    async def rollback(self):
+        await self.session.rollback()

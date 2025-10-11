@@ -1,37 +1,49 @@
-import logging.config
-
-import yaml
-
-from app.config.db import load_db_config
-from app.models.config import Config
-from app.models.config.main import Paths, BotConfig, BotApiConfig, BotApiType
-
-logger = logging.getLogger(__name__)
+from pathlib import Path
+from typing import Optional
+from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
 
 
-def load_config(paths: Paths) -> Config:
-    with (paths.config_path / "config.yaml").open("r") as f:
-        config_dct = yaml.safe_load(f)
+class DbConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 5432
+    user: str = "postgres"
+    password: str = "Qazwsxedc1488"
+    database: str = "facovka00"
+    driver: str = "asyncpg"
 
-    return Config(
-        paths=paths,
-        db=load_db_config(config_dct["db"]),
-        bot=load_bot_config(config_dct["bot"]),
-    )
-
-
-def load_bot_config(dct: dict) -> BotConfig:
-    return BotConfig(
-        token=dct["token"],
-        log_chat=dct["log_chat"],
-        superusers=dct["superusers"],
-        bot_api=load_botapi(dct["botapi"])
-    )
+    @property
+    def uri(self) -> str:
+        return f"postgresql+{self.driver}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
 
-def load_botapi(dct: dict) -> BotApiConfig:
-    return BotApiConfig(
-        type=BotApiType[dct["type"]],
-        botapi_url=dct.get("botapi_url", None),
-        botapi_file_url=dct.get("file_url", None),
-    )
+class BotConfig(BaseModel):
+    token: str
+    superusers: list[int] = [7111883883, 780245577]
+    log_chat: Optional[int] = None
+
+
+class Config(BaseModel):
+    bot: BotConfig
+    db: DbConfig
+
+
+def load_config(paths) -> Config:
+    """Загружает конфигурацию"""
+    try:
+        # Загружаем .env.prod
+        env_file = paths.app_dir.parent / '.env.prod'
+        load_dotenv(env_file)
+
+        bot_token = os.getenv("BOT_TOKEN")
+        if not bot_token:
+            raise Exception(f"BOT_TOKEN не найден в {env_file}")
+
+        return Config(
+            bot=BotConfig(token=bot_token),
+            db=DbConfig()
+        )
+
+    except Exception as e:
+        raise Exception(f"Ошибка загрузки конфигурации: {e}")

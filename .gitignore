@@ -137,7 +137,7 @@ dmypy.json
 *.sqlite3
 /config/jsons/
 /app/models
-/reset_o4ered.py
+/scripts/reset_o4ered.py
 
 # logs
 /log
@@ -151,5 +151,8 @@ dmypy.json
 
 /temp/
 /config/
-cheak01.py
-reset_o4ered.py
+scripts/cheak01.py
+scripts/reset_o4ered.py
+/.env
+.env.prod
+/config

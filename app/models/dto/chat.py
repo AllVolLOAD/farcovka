@@ -1,39 +1,41 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
-from dataclasses import dataclass
+# Старые классы для совместимости
+class Chat(BaseModel):
+    id: int
+    chat_id: int
+    type: str
+    title: Optional[str] = None
+    username: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime
+    updated_at: datetime
 
-from aiogram import types as tg
+    class Config:
+        from_attributes = True
 
-from app.enums.chat_type import ChatType
+# Новые классы
+class ChatBase(BaseModel):
+    chat_id: int
+    type: str
+    title: Optional[str] = None
+    username: Optional[str] = None
+    is_active: bool = True
 
+class ChatCreate(ChatBase):
+    pass
 
-@dataclass
-class Chat:
-    tg_id: int
-    type: ChatType
-    db_id: int | None = None
-    username: str | None = None
-    title: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+class ChatUpdate(BaseModel):
+    title: Optional[str] = None
+    username: Optional[str] = None
+    is_active: Optional[bool] = None
 
-    @property
-    def full_name(self):
-        return self.first_name + " " + self.last_name or ""
+class ChatInDB(ChatBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
 
-    @property
-    def name(self):
-        if self.type == ChatType.private:
-            return self.full_name
-        return self.title
-
-    @classmethod
-    def from_aiogram(cls, chat: tg.Chat) -> Chat:
-        return cls(
-            tg_id=chat.id,
-            title=chat.title,
-            type=ChatType[chat.type],
-            username=chat.username,
-            first_name=chat.first_name,
-            last_name=chat.last_name,
-        )
+    class Config:
+        from_attributes = True

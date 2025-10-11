@@ -1,8 +1,13 @@
-from .rate import CurrentRate, RateHistory
-from .queue import QueueEntry
+from .db import Base, User, Chat, ParsedRate
+from .dto import (
+    UserCreate, UserUpdate, UserInDB,
+    ChatCreate, ChatUpdate, ChatInDB,
+    ParsedRateCreate, ParsedRateUpdate, ParsedRateInDB
+)
 
 __all__ = [
-    "CurrentRate",
-    "RateHistory",
-    "QueueEntry",
+    "Base", "User", "Chat", "ParsedRate",
+    "UserCreate", "UserUpdate", "UserInDB",
+    "ChatCreate", "ChatUpdate", "ChatInDB",
+    "ParsedRateCreate", "ParsedRateUpdate", "ParsedRateInDB"
 ]

@@ -33,3 +33,5 @@ class DBConfig:
             raise ValueError("DB_TYPE not mysql, sqlite or postgres")
         logger.debug(url)
         return url
+
+

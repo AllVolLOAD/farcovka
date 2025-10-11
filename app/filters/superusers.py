@@ -4,9 +4,9 @@ from aiogram.types import Message
 
 logger = logging.getLogger(__name__)
 
-class IsSuperuser(BaseFilter):
+class SuperuserFilter(BaseFilter):
     def __init__(self, superusers):
-        logger.info(f"🔧 IsSuperuser filter initialized with: {superusers} (type: {type(superusers)})")
+        logger.info(f"🔧 SuperuserFilter initialized with: {superusers} (type: {type(superusers)})")
         self.superusers = superusers
 
     async def __call__(self, message: Message) -> bool:
@@ -20,7 +20,3 @@ class IsSuperuser(BaseFilter):
             logger.error(f"🔍 User ID: {message.from_user.id}, Superusers type: {type(self.superusers)}")
             return False
 
-# Добавим также простую функцию для теста
-def is_superuser(message: Message, superusers) -> bool:
-    logger.info(f"🔧 is_superuser function called with superusers: {superusers}")
-    return message.from_user.id in superusers

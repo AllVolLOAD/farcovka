@@ -1,24 +1,42 @@
-from __future__ import annotations
-from dataclasses import dataclass
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
-from aiogram import types as tg
+# Старые классы для совместимости
+class User(BaseModel):
+    id: int
+    user_id: int
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: bool = True
+    created_at: datetime
+    updated_at: datetime
 
+    class Config:
+        from_attributes = True
 
-@dataclass
-class User:
-    tg_id: int
-    db_id: int | None = None
-    username: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    is_bot: bool | None = None
+# Новые классы
+class UserBase(BaseModel):
+    user_id: int
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: bool = True
 
-    @classmethod
-    def from_aiogram(cls, user: tg.User) -> User:
-        return cls(
-            tg_id=user.id,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            is_bot=user.is_bot,
-        )
+class UserCreate(UserBase):
+    pass
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class UserInDB(UserBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
