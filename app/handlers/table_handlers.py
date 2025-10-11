@@ -4,7 +4,11 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 
+from app.dao.holder import HolderDao
+from app.services.dashboard_sevice import DashboardService
 from app.services.notification_service import NotificationService
+from app.services.rapira_parser_service import RapiraParserService
+from app.services.rbc_cash_service import RbcCashParserService  # Новый парсер
 from app.services.rate_service import RateService  # Один курс
 from app.services.multi_rate_service import MultiRateService  # Мультикурсы
 from app.keyboards.main_menu import get_main_keyboard
@@ -13,23 +17,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-logger = logging.getLogger(__name__)
-
 # Создаем роутер
 router = Router()
 user_last_table_message = {}
 
-user_last_table_message = {}
-
 
 @router.message(Command("start"))
-async def table_start(message: Message, session: AsyncSession, config: BotConfig):
-    """Показывает/обновляет табло с мультикурсами"""
+async def table_start(
+        message: Message,
+        session: AsyncSession,
+        config: BotConfig,
+        dashboard_service: DashboardService
+):
+    """Показывает/обновляет табло с разделенными курсами (парсер + админские)"""
     try:
-        # Используем MultiRateService вместо RateService
-        multi_service = MultiRateService(session)
-        message_text = await multi_service.format_multi_rate_message()
+        # Получаем отформатированное табло из нашего сервиса
+        message_text = await dashboard_service.format_dashboard_message()
 
         user_id = message.from_user.id
 
@@ -41,7 +44,7 @@ async def table_start(message: Message, session: AsyncSession, config: BotConfig
                     message_id=user_last_table_message[user_id],
                     text=message_text,
                     reply_markup=get_main_keyboard(),
-                    parse_mode="Markdown"  # Измените на Markdown если нужно
+                    parse_mode="Markdown"
                 )
                 logger.info(f"✏️ Табло отредактировано для пользователя {user_id}")
                 return
@@ -54,7 +57,7 @@ async def table_start(message: Message, session: AsyncSession, config: BotConfig
         new_message = await message.answer(
             message_text,
             reply_markup=get_main_keyboard(),
-            parse_mode="Markdown"  # Измените на Markdown если нужно
+            parse_mode="Markdown"
         )
         user_last_table_message[user_id] = new_message.message_id
         logger.info(f"📄 Новое табло создано для пользователя {user_id}")
@@ -62,6 +65,7 @@ async def table_start(message: Message, session: AsyncSession, config: BotConfig
     except Exception as e:
         logger.error(f"❌ Ошибка табло: {e}")
         await message.answer("❌ Ошибка загрузки курсов")
+
 
 @router.callback_query(F.data == "update_rate")
 async def update_rate_handler(callback: CallbackQuery, session: AsyncSession):
@@ -71,14 +75,12 @@ async def update_rate_handler(callback: CallbackQuery, session: AsyncSession):
         from app.services.notification_service import NotificationService
 
         queue_service = QueueService(session)
-        # Передаем session в NotificationService
         notification_service = NotificationService(callback.bot, session)
 
         username = callback.from_user.username or callback.from_user.full_name
         success, queue_size = await queue_service.add_to_queue(callback.from_user.id, username)
 
         if success:
-            # Передаем session в метод уведомления
             await notification_service.notify_admins_queue_full(session)
 
             if queue_size >= 3:
@@ -112,7 +114,22 @@ async def handle_new_rate(message: Message, session: AsyncSession):
         logger.info("Обработка new_rate от пользователя %s: %s", user_id, text)
 
         if text == "/new_rate":
-            # ... справка ...
+            # Показываем справку
+            help_text = """
+📊 <b>Добавление курсов</b>
+
+<b>Форматы:</b>
+• <code>USD/RUB 82.80 83.30</code>
+• <code>EUR/RUB 89.50 90.10</code>  
+• <code>CNY/RUB 11.20 11.40</code>
+
+<b>Несколько пар через запятые:</b>
+• <code>USD/RUB 82.80 83.30, EUR/RUB 89.50 90.10</code>
+
+<b>Автоматический спред:</b>
+• <code>USD/RUB 82.80</code> → 82.80 / 83.63 (+1%)
+            """
+            await message.answer(help_text, parse_mode="HTML")
             return
 
         rate_pairs = await parse_rate_input(text)
@@ -136,7 +153,7 @@ async def handle_new_rate(message: Message, session: AsyncSession):
                 sell_rate=sell_rate,
                 admin_id=user_id
             )
-
+            await session.commit()
             if success:
                 results.append(f"✅ {pair}: {buy_rate}/{sell_rate}")
             else:
@@ -145,9 +162,12 @@ async def handle_new_rate(message: Message, session: AsyncSession):
         # Формируем итоговое сообщение
         if results:
             result_text = "📊 **Результат обновления:**\n" + "\n".join(results)
-            current_rates = await multi_service.format_multi_rate_message()
 
-            # ✅ РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК - уведомление очереди
+            # Получаем обновленное табло через DashboardService
+            dashboard_service = DashboardService(session)
+            current_rates = await dashboard_service.format_dashboard_message()
+
+            # Уведомляем очередь
             try:
                 from app.services.notification_service import NotificationService
                 notification_service = NotificationService(message.bot, session)
@@ -157,7 +177,7 @@ async def handle_new_rate(message: Message, session: AsyncSession):
                 logger.error("❌ Ошибка уведомления очереди: %s", e)
 
             await message.answer(result_text)
-            await message.answer(current_rates)
+            await message.answer(current_rates, parse_mode="Markdown")
         else:
             await message.answer("❌ Не удалось обновить курсы")
 
@@ -179,7 +199,7 @@ async def parse_rate_input(text: str):
         results = []
 
         for pair_text in pairs_text:
-            # Заменяем разные разделители на пробелы и запятые на точки
+            # Заменяем разные разделители на пробелы
             normalized = pair_text.replace('/', ' ').replace('-', ' ').replace(',', ' ')
             # Заменяем десятичные запятые на точки
             normalized = normalized.replace(',', '.')
@@ -194,10 +214,10 @@ async def parse_rate_input(text: str):
             pair = f"{currency1}/{currency2}"
 
             try:
-                buy_rate = float(parts[2].replace(',', '.'))  # Заменяем запятые на точки
+                buy_rate = float(parts[2].replace(',', '.'))
                 # Если есть 4-я часть - курс продажи
                 if len(parts) >= 4:
-                    sell_rate = float(parts[3].replace(',', '.'))  # Заменяем запятые на точки
+                    sell_rate = float(parts[3].replace(',', '.'))
                 else:
                     sell_rate = buy_rate * 1.01  # Автоматический спред 1%
 
@@ -219,11 +239,14 @@ async def parse_rate_input(text: str):
 
 
 @router.callback_query(F.data == "refresh_table")
-async def refresh_table_handler(callback: CallbackQuery, session: AsyncSession):
+async def refresh_table_handler(
+        callback: CallbackQuery,
+        session: AsyncSession,
+        dashboard_service: DashboardService  # Добавляем зависимость
+):
     """Обработчик кнопки обновления табло"""
     try:
-        multi_service = MultiRateService(session)
-        message_text = await multi_service.format_multi_rate_message()
+        message_text = await dashboard_service.format_dashboard_message()
 
         # Редактируем текущее сообщение
         await callback.message.edit_text(
@@ -275,3 +298,134 @@ async def clear_rates_handler(message: Message, session: AsyncSession):
     except Exception as e:
         logger.error("Ошибка очистки курсов: %s", e)
         await message.answer("❌ Ошибка очистки")
+
+# ИСПРАВЬТЕ эти строки в table_handlers.py:
+
+@router.message(Command("обновить_рапиру"))
+async def update_rapira_manual(
+        message: Message,
+        session: AsyncSession,
+        dashboard_service: DashboardService
+):
+    """Ручное обновление курсов RAPIRA"""
+    try:
+        # УБЕРИТЕ СКОБКИ - передавайте session, а не session()
+        rapira_parser = RapiraParserService(session)  # БЫЛО: session()
+        success = await rapira_parser.update_rapira_rates()
+
+        if success:
+            # Получаем обновленное табло
+            message_text = await dashboard_service.format_dashboard_message()
+            await message.answer("✅ Курсы RAPIRA обновлены вручную!")
+            await message.answer(message_text, parse_mode="Markdown")
+        else:
+            await message.answer("❌ Ошибка обновления курсов RAPIRA")
+    except Exception as e:
+        logger.error(f"❌ Ошибка ручного обновления RAPIRA: {e}")
+        await message.answer("❌ Ошибка обновления RAPIRA")
+
+
+@router.message(Command("обновить_рбк"))
+async def update_rbc_cash_manual(
+        message: Message,
+        session: AsyncSession,
+        dashboard_service: DashboardService
+):
+    """Ручное обновление курсов RBC Cash"""
+    try:
+        # УБЕРИТЕ СКОБКИ - передавайте session, а не session()
+        rbc_parser = RbcCashParserService(session)  # БЫЛО: session()
+        rates = await rbc_parser.update_rbc_cash_rates()
+
+        if rates:
+            # Получаем обновленное табло
+            message_text = await dashboard_service.format_dashboard_message()
+            await message.answer(f"✅ RBC Cash обновлен! Получено {len(rates)} курсов")
+            await message.answer(message_text, parse_mode="Markdown")
+        else:
+            await message.answer("❌ Не удалось обновить RBC Cash")
+    except Exception as e:
+        logger.error(f"❌ Ошибка ручного обновления RBC Cash: {e}")
+        await message.answer("❌ Ошибка обновления RBC Cash")
+
+
+@router.message(Command("обновить_все"))
+async def update_all_parsers(
+        message: Message,
+        session: AsyncSession,
+        dashboard_service: DashboardService
+):
+    """Обновление всех парсеров одновременно"""
+    try:
+        results = []
+
+        # УБЕРИТЕ СКОБКИ
+        rapira_parser = RapiraParserService(session)  # БЫЛО: session()
+        rapira_success = await rapira_parser.update_rapira_rates()
+        results.append(f"RAPIRA: {'✅' if rapira_success else '❌'}")
+
+        # УБЕРИТЕ СКОБКИ
+        rbc_parser = RbcCashParserService(session)  # БЫЛО: session()
+        rbc_rates = await rbc_parser.update_rbc_cash_rates()
+        results.append(f"RBC Cash: {'✅' if rbc_rates else '❌'}")
+
+        # Формируем итоговое сообщение
+        result_text = "🔄 <b>Результат обновления парсеров:</b>\n" + "\n".join(results)
+
+        # Получаем обновленное табло
+        message_text = await dashboard_service.format_dashboard_message()
+
+        await message.answer(result_text, parse_mode="HTML")
+        await message.answer(message_text, parse_mode="Markdown")
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка обновления всех парсеров: {e}")
+        await message.answer("❌ Ошибка обновления парсеров")
+
+
+@router.message(Command("статус_парсеров"))
+async def parsers_status(
+        message: Message,
+        session: AsyncSession,
+        dashboard_service: DashboardService
+):
+    """Показывает статус всех парсеров"""
+    try:
+        from app.dao.parsed_rate import ParsedRateDAO
+
+        # Создаем DAO с сессией
+        parsed_rate_dao = ParsedRateDAO(session)
+
+        # Получаем последние курсы по источникам
+        rapira_rates = await parsed_rate_dao.get_active_rates_by_source('rapira')
+        rbc_rates = await parsed_rate_dao.get_active_rates_by_source('rbc_cash')
+
+        status_text = "📊 <b>СТАТУС ПАРСЕРОВ</b>\n\n"
+
+        # RAPIRA статус
+        if rapira_rates:
+            latest_rapira = max(rapira_rates, key=lambda x: x.updated_at)
+            time_diff = await dashboard_service.get_time_diff(latest_rapira.updated_at)
+            status_text += f"🤖 <b>RAPIRA</b>: ✅ Активен\n"
+            status_text += f"   Последнее обновление: {time_diff} мин назад\n"
+            status_text += f"   Курсы: {len(rapira_rates)} пар\n"
+        else:
+            status_text += f"🤖 <b>RAPIRA</b>: ❌ Нет данных\n"
+
+        status_text += "\n"
+
+        # RBC Cash статус
+        if rbc_rates:
+            latest_rbc = max(rbc_rates, key=lambda x: x.updated_at)
+            time_diff = await dashboard_service.get_time_diff(latest_rbc.updated_at)
+            status_text += f"🏦 <b>RBC Cash</b>: ✅ Активен\n"
+            status_text += f"   Последнее обновление: {time_diff} мин назад\n"
+            status_text += f"   Курсы: {len(rbc_rates)} пар\n"
+        else:
+            status_text += f"🏦 <b>RBC Cash</b>: ❌ Нет данных\n"
+
+        await message.answer(status_text, parse_mode="HTML")
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения статуса парсеров: {e}")
+        await message.answer("❌ Ошибка получения статуса")
