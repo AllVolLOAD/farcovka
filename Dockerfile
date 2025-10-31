@@ -2,19 +2,19 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Копируем зависимости сначала (для кэширования)
-COPY requirements.txt .
+# Устанавливаем часовой пояс
+RUN apt-get update && apt-get install -y tzdata
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Устанавливаем зависимости
+# Копируем зависимости
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем остальное приложение
-COPY app/ ./app/
-COPY alembic.ini .
-COPY migrations/ ./migrations/
-COPY scripts/ ./scripts/
+# Копируем код
+COPY . .
 
-# Создаем директории
-RUN mkdir -p /app/logs
+# Создаем папку для логов
+RUN mkdir -p logs
 
-CMD ["sh", "-c", "alembic upgrade head && python -m app"]влл
+CMD ["python", "-m", "app"]
