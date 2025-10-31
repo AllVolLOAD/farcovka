@@ -1,0 +1,42 @@
+<html>
+<head>
+<title>Dockerfile</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #ed864a;}
+.s1 { color: #ebebeb;}
+.s2 { color: #33ccff; font-weight: bold;}
+.s3 { color: #7ec3e6;}
+.s4 { color: #54b33e;}
+.s5 { color: #ed864a; font-weight: bold;}
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#131314">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Dockerfile</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">FROM </span><span class="s1">python:</span><span class="s2">3.11</span><span class="s0">-</span><span class="s1">slim</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a><span class="s0">WORKDIR /</span><span class="s1">app</span>
+<a name="l4"><span class="ln">4    </span></a>
+<a name="l5"><span class="ln">5    </span></a><span class="s3"># Копируем зависимости сначала (для кэширования)</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0">COPY </span><span class="s1">requirements.txt .</span>
+<a name="l7"><span class="ln">7    </span></a>
+<a name="l8"><span class="ln">8    </span></a><span class="s3"># Устанавливаем зависимости</span>
+<a name="l9"><span class="ln">9    </span></a><span class="s0">RUN </span><span class="s1">pip install </span><span class="s0">--</span><span class="s1">no-cache-dir </span><span class="s0">-</span><span class="s1">r requirements.txt</span>
+<a name="l10"><span class="ln">10   </span></a>
+<a name="l11"><span class="ln">11   </span></a><span class="s3"># Копируем остальное приложение</span>
+<a name="l12"><span class="ln">12   </span></a><span class="s0">COPY </span><span class="s1">app</span><span class="s0">/ </span><span class="s1">.</span><span class="s0">/</span><span class="s1">app</span><span class="s0">/</span>
+<a name="l13"><span class="ln">13   </span></a><span class="s0">COPY </span><span class="s1">alembic.ini .</span>
+<a name="l14"><span class="ln">14   </span></a><span class="s0">COPY </span><span class="s1">migrations</span><span class="s0">/ </span><span class="s1">.</span><span class="s0">/</span><span class="s1">migrations</span><span class="s0">/</span>
+<a name="l15"><span class="ln">15   </span></a><span class="s0">COPY </span><span class="s1">scripts</span><span class="s0">/ </span><span class="s1">.</span><span class="s0">/</span><span class="s1">scripts</span><span class="s0">/</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s3"># Создаем директории</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s0">RUN </span><span class="s1">mkdir </span><span class="s0">-</span><span class="s1">p </span><span class="s0">/</span><span class="s1">app</span><span class="s0">/</span><span class="s1">logs</span>
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a><span class="s0">CMD </span><span class="s1">[</span><span class="s4">&quot;sh&quot;</span><span class="s5">, </span><span class="s4">&quot;-c&quot;</span><span class="s5">, </span><span class="s4">&quot;alembic upgrade head &amp;&amp; python -m app&quot;</span><span class="s1">]влл</span></pre>
+</body>
+</html>

@@ -7,7 +7,22 @@ from app.models import dto
 from app.models.db import Chat
 
 
-class ChatDAO(BaseDAO[Chat]):
+from sqlalchemy import select, func
+
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+class ChatDAO:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def get_chats_count(self) -> int:
+        # Заглушка - пока нет таблицы chats
+        return 0
+
+"""class ChatDAO(BaseDAO[Chat]):
     def __init__(self, session: AsyncSession):
         super().__init__(Chat, session)
 
@@ -33,3 +48,4 @@ class ChatDAO(BaseDAO[Chat]):
         chat_db = await self.get_by_tg_id(chat.tg_id)
         chat_db.tg_id = new_id
         self.save(chat_db)
+"""

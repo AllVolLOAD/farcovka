@@ -11,7 +11,7 @@ from app.handlers import setup_handlers
 #from app.middlewares import setup_middlewares
 from app.models.config.main import Paths
 from app.models.db import create_pool
-from aiogram.client.default import DefaultBotProperties
+# from aiogram.client.default import DefaultBotProperties
 from app.middlewares.simple_chain import SimpleConfigMiddleware, SimpleDbMiddleware
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def main():
     #setup_middlewares(dp, create_pool(config.db), config.bot)
     bot = Bot(
         token=config.bot.token,
-        default=DefaultBotProperties(parse_mode="HTML"),
+        
         session=config.bot.create_session(),
     )
 

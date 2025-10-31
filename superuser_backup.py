@@ -15,14 +15,13 @@ def setup_superuser(dp: Dispatcher, bot_config: BotConfig):
     logger.info("🔧 Setting up superuser handlers...")
 
     try:
-        # Получаем список суперпользователей из конфига
-        superusers_list = [7111883883, 780245577]  # Твой ID
+        superusers_list = [7111883883, 780245577]
 
         logger.info(f"🔍 Superusers list: {superusers_list}")
 
         from app.filters.superusers import SuperuserFilter
         router = Router(name=__name__)
-        router.message.filter(SuperuserFilter(superusers_list))  # Передаем список ID
+        router.message.filter(SuperuserFilter(superusers_list))
 
         @router.message(Command("superuser_test"))
         async def superuser_test(message: Message):
@@ -41,7 +40,6 @@ def setup_superuser(dp: Dispatcher, bot_config: BotConfig):
 
 ⚡ Бот работает корректно"""
                 else:
-                    # Создаем DAO из сессии
                     from app.dao.holder import HolderDao
                     dao = HolderDao(session)
 
@@ -56,16 +54,21 @@ def setup_superuser(dp: Dispatcher, bot_config: BotConfig):
 💬 Чатов: {chats_count}
 📋 В очереди: {queue_count}
 ⚡ Версия: 1.0.0"""
-                    except Exception as db_error:
-                        stats_text = f"""📊 Статистика бота:
+except Exception as db_error:
+    # Безопасный вывод ошибки
+    error_msg = str(db_error).split("\n")[0]
+    stats_text = f"""📊 Статистика бота:
 
-❌ Ошибка базы данных: {db_error}
+❌ Ошибка базы данных: {error_msg}
+⚡ Обратись к разработчику"""
+
+❌ Ошибка базы данных: {error_msg}
 ⚡ Обратись к разработчику"""
 
                 await message.answer(stats_text)
 
             except Exception as e:
-                await message.answer(f"❌ Ошибка статистики: {e}")
+                await message.answer("❌ Временная ошибка статистики")
                 logger.error(f"Stats error: {e}")
 
         dp.include_router(router)

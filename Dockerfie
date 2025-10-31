@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+COPY alembic.ini .
+COPY migrations/ ./migrations/
+
+# Копируем scripts только если папка существует
+COPY scripts/ ./scripts/ 2>/dev/null || echo "Scripts directory not found, skipping"
+
+RUN mkdir -p /app/logs
+
+CMD ["sh", "-c", "python -m app"]

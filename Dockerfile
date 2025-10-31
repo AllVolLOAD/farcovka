@@ -1,17 +1,20 @@
-FROM python:3.11-slim-buster as builder
+FROM python:3.11-slim
 
 WORKDIR /app
+
+# Устанавливаем часовой пояс
+RUN apt-get update && apt-get install -y tzdata
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Копируем зависимости
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.11-slim-buster
+# Копируем код
+COPY . .
 
-WORKDIR /app
-COPY --from=builder /root/.local /root/.local
-COPY app app
+# Создаем папку для логов
+RUN mkdir -p logs
 
-ENV PATH=/root/.local/bin:$PATH
-VOLUME /log /config
-EXPOSE 3000
-
-ENTRYPOINT ["python", "-m", "app"]
+CMD ["python", "-m", "app"]
