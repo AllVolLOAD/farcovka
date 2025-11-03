@@ -5,6 +5,8 @@ from aiogram.filters import Command
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.keyboards.main_menu import get_main_keyboard
+from app.services.parser_service import ParserService
+from app.services.multi_rate_service import MultiRateService
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +135,6 @@ async def handle_rates_bulk(message: Message, session: AsyncSession, text: str):
             return
 
         # Обновляем в БД
-        from app.services.multi_rate_service import MultiRateService
         multi_service = MultiRateService(session)
 
         updated_count = 0
@@ -171,7 +172,6 @@ async def handle_admin_messages(message: Message, session: AsyncSession):
             new_rate = float(text)
             logger.info(f"💰 Админ ввел основной курс: {new_rate}")
 
-            from app.services.multi_rate_service import MultiRateService
             from app.services.queue_service import QueueService
 
             multi_service = MultiRateService(session)
@@ -190,6 +190,23 @@ async def handle_admin_messages(message: Message, session: AsyncSession):
 
         except ValueError:
             await message.answer("❌ Введите число, например: 95.50")
+
+    # Тестовый триггер парсеров: /parse_now
+    if text.startswith('/parse_now') or text.startswith('/test_parsers'):
+        try:
+            # Запускаем обновление из парсеров
+            parser_service = ParserService(session)
+            await parser_service.update_all_auto_rates()
+
+            # Получаем текущее табло (с источниками)
+            multi_service = MultiRateService(session)
+            message_text = await multi_service.format_multi_rate_message_with_sources()
+
+            await message.answer("✅ Парсеры отработали", parse_mode="HTML")
+            await message.answer(message_text)
+        except Exception as e:
+            logger.error(f"❌ Ошибка test parsers: {e}")
+            await message.answer("❌ Ошибка запуска парсеров")
 
 
 def setup_admin_handlers(dp):

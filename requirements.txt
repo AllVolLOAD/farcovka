@@ -19,6 +19,9 @@ pydantic>=2.0.0
 pydantic-settings>=2.0.0
 pyyaml>=6.0.0  # <-- ДОБАВИЛИ ЭТУ СТРОЧКУ!
 
+# Fix transitive dependency to satisfy aiogram 3.0.0
+typing-extensions~=4.7.1
+
 # Scheduler
 apscheduler>=3.10.0
 
@@ -28,3 +31,10 @@ cryptography>=41.0.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# Logging
+colorlog>=6.7.0
+
+# Headless scraping (RBC)
+selenium>=4.38.0
+playwright>=1.46.0

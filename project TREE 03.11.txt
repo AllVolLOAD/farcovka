@@ -1,0 +1,132 @@
+
+📦 
+├─ .dockerignore
+├─ .env.template
+├─ .github
+│  └─ workflows
+│     ├─ build.yml
+│     └─ test.yml
+├─ .gitignore
+├─ DATABASE_SETUP.md
+├─ Dockerfie
+├─ Dockerfile
+├─ README.md
+├─ alembic.ini
+├─ app
+│  ├─ __init__.py
+│  ├─ __main__.py
+│  ├─ config
+│  │  ├─ __init__.py
+│  │  ├─ db.py
+│  │  ├─ logging_config.py
+│  │  └─ main.py
+│  ├─ dao
+│  │  ├─ __init__.py
+│  │  ├─ base.py
+│  │  ├─ chat.py
+│  │  ├─ holder.py
+│  │  ├─ queue.py
+│  │  └─ user.py
+│  ├─ enums
+│  │  ├─ __init__.py
+│  │  └─ chat_type.py
+│  ├─ filters
+│  │  ├─ __init__.py
+│  │  └─ superusers.py
+│  ├─ handlers
+│  │  ├─ __init__.py
+│  │  ├─ admin_handlers.py
+│  │  ├─ base.py
+│  │  ├─ errors.py
+│  │  ├─ stats.py
+│  │  ├─ superuser.py
+│  │  └─ table_handlers.py
+│  ├─ keyboards
+│  │  └─ main_menu.py
+│  ├─ middlewares
+│  │  ├─ __init__.py
+│  │  ├─ config_middleware.py
+│  │  ├─ data_load_middleware.py
+│  │  ├─ db_middleware.py
+│  │  └─ simple_chain.py
+│  ├─ models
+│  │  ├─ __init__.py
+│  │  ├─ config
+│  │  │  ├─ __init__.py
+│  │  │  ├─ db.py
+│  │  │  └─ main.py
+│  │  ├─ db
+│  │  │  ├─ __init__.py
+│  │  │  ├─ base.py
+│  │  │  ├─ chat.py
+│  │  │  └─ user.py
+│  │  ├─ dto
+│  │  │  ├─ __init__.py
+│  │  │  ├─ chat.py
+│  │  │  └─ user.py
+│  │  ├─ multi_rate.py
+│  │  ├─ queue.py
+│  │  └─ rate.py
+│  ├─ services
+│  │  ├─ __init__.py
+│  │  ├─ chat.py
+│  │  ├─ multi_rate_service.py
+│  │  ├─ notification_service.py
+│  │  ├─ queue.py
+│  │  ├─ queue_service.py
+│  │  ├─ rate_service.py
+│  │  └─ user.py
+│  └─ states
+│     ├─ admin_states.py
+│     └─ rate_states.py
+├─ dev.requirements.txt
+├─ docker-compose.yml
+├─ exportToHTML
+│  ├─ .dockerignore.html
+│  ├─ .gitignore.html
+│  ├─ Dockerfile.html
+│  ├─ README.md.html
+│  ├─ alembic.ini.html
+│  ├─ dev.requirements.txt.html
+│  ├─ docker-compose.yml.html
+│  ├─ index.html
+│  └─ requirements.txt.html
+├─ init_database.py
+├─ init_tables.sql
+├─ migrations
+│  ├─ README
+│  ├─ env.py
+│  ├─ script.py.mako
+│  └─ versions
+│     └─ 20250926-021411_b172a79379f1_add_user_stats_table.py
+├─ requirements.txt
+├─ superuser_backup.py
+└─ tests
+   ├─ __init__.py
+   ├─ config
+   │  ├─ config.yaml
+   │  └─ logging.yaml
+   ├─ conftest.py
+   ├─ fixtures
+   │  ├─ __init__.py
+   │  ├─ chat_constants.py
+   │  └─ user_constants.py
+   ├─ integration
+   │  ├─ __init__.py
+   │  ├─ conftest.py
+   │  ├─ test_save_chat.py
+   │  ├─ test_save_user.py
+   │  └─ test_stairway.py
+   ├─ mocks
+   │  ├─ __init__.py
+   │  └─ config.py
+   ├─ unit
+   │  ├─ __init__.py
+   │  └─ mapper
+   │     ├─ __init__.py
+   │     ├─ test_chat_mapper.py
+   │     └─ test_user_mapper.py
+   └─ utils
+      ├─ __init__.py
+      ├─ chat.py
+      └─ user.py
