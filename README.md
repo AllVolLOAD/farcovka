@@ -1,114 +1,272 @@
-# Simple Aiogram 3.x template
-[![wakatime](https://wakatime.com/badge/user/929ee39b-4eb0-4076-ab5e-5ade3c56e464/project/7d995a8f-0e9f-428a-a098-5186c70b6d6e.svg)](https://wakatime.com/badge/user/929ee39b-4eb0-4076-ab5e-5ade3c56e464/project/7d995a8f-0e9f-428a-a098-5186c70b6d6e)
+# FarCovka Bot 🤖
 
-## How to run
+Telegram-бот для управления и отображения курсов валют с системой очередей и уведомлений.
 
-Required launched PostgreSQL and installed Python3.10
+## 📋 Описание проекта
 
-* copy config template
-```bash
-cp -r config config
+FarCovka Bot — это полнофункциональный Telegram-бот, разработанный на базе **aiogram 3.x**, предназначенный для управления курсами валют. Бот предоставляет удобный интерфейс для администраторов по обновлению курсов и автоматически уведомляет пользователей об изменениях.
+
+### Основные возможности
+
+- 💱 **Управление курсами валют** — поддержка множественных валютных пар с курсами покупки и продажи
+- 📊 **Интерактивное табло** — отображение актуальных курсов с возможностью обновления
+- 🔔 **Система уведомлений** — автоматические уведомления пользователей об обновлении курсов
+- 📝 **Очередь пользователей** — система очередей для управления запросами на обновление курсов
+- 👨‍💼 **Админ-панель** — удобное управление курсами для администраторов
+- 📈 **Статистика** — отслеживание активности пользователей
+- 🗄️ **База данных** — PostgreSQL с миграциями Alembic
+- 🐳 **Docker-контейнеризация** — готовые конфигурации для развертывания
+
+## 🛠️ Технологический стек
+
+- **Python 3.11** — основной язык разработки
+- **aiogram 3.0.0** — фреймворк для Telegram-ботов
+- **SQLAlchemy 2.0+** — ORM для работы с базой данных
+- **PostgreSQL** — реляционная база данных
+- **Alembic** — миграции базы данных
+- **asyncpg** — асинхронный драйвер для PostgreSQL
+- **Docker & Docker Compose** — контейнеризация
+- **Pydantic** — валидация конфигурации
+- **APScheduler** — планировщик задач
+
+## 📁 Структура проекта
+
 ```
-* Fill config/config.yml in with required values 
-* Create and activate venv
+farcovka/
+├── app/                    # Основное приложение
+│   ├── config/            # Конфигурация
+│   ├── dao/               # Data Access Object (слой доступа к данным)
+│   ├── handlers/          # Обработчики сообщений и команд
+│   ├── keyboards/         # Клавиатуры бота
+│   ├── middlewares/       # Middleware для обработки запросов
+│   ├── models/            # Модели данных (DB, DTO, Config)
+│   ├── services/          # Бизнес-логика
+│   └── states/            # FSM состояния
+├── tests/                 # Тесты (unit, integration)
+├── migrations/            # Миграции Alembic
+├── docker-compose.yml     # Docker Compose конфигурация
+├── Dockerfile            # Docker образ
+├── requirements.txt       # Зависимости проекта
+└── README.md             # Документация
+```
+
+## 🚀 Быстрый старт
+
+### Предварительные требования
+
+- Python 3.10+
+- PostgreSQL 13+
+- Docker и Docker Compose (опционально)
+
+### Установка и запуск
+
+1. **Клонирование репозитория**
+```bash
+git clone <repository-url>
+cd farcovka
+```
+
+2. **Настройка конфигурации**
+
+Создайте файл `config/config.yaml`:
+```yaml
+db:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: your_password
+  database: farcovka
+
+bot:
+  token: YOUR_BOT_TOKEN
+  log_chat: YOUR_LOG_CHAT_ID
+  superusers:
+    - 123456789
+  botapi:
+    type: OFFICIAL  # или LOCAL
+    botapi_url: null
+    file_url: null
+```
+
+3. **Создание виртуального окружения**
 ```bash
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Linux/Mac
+# или
+venv\Scripts\activate  # Windows
 ```
-* install dependencies
+
+4. **Установка зависимостей**
 ```bash
 pip install -r requirements.txt
 ```
-* Fill in alembic.ini (probably only db url)
-* apply migrations
+
+5. **Настройка базы данных**
+
+Отредактируйте `alembic.ini` с параметрами подключения к БД:
+```ini
+sqlalchemy.url = postgresql+asyncpg://user:password@localhost:5432/farcovka
+```
+
+6. **Применение миграций**
 ```bash
 alembic upgrade head
 ```
-* ... and run
+
+7. **Запуск бота**
 ```bash
 python -m app
 ```
-create script for make DB
 
-#!/usr/bin/env python3
-import asyncio
-import os
-import sys
-from pathlib import Path
+### Запуск через Docker
 
-# Добавляем путь к app в PYTHONPATH
-sys.path.append(str(Path(__file__).parent.parent))
+1. **Создайте `.env.prod` файл:**
+```env
+BOT_TOKEN=your_bot_token
+DB_PASSWORD=your_db_password
+```
 
-async def init_database():
-    try:
-        from sqlalchemy.ext.asyncio import create_async_engine
-        from app.config.db import DatabaseConfig
-        
-        # Берем URL из конфига
-        config = DatabaseConfig()
-        database_url = config.url
-        
-        print(f"🔗 Подключаемся к БД: {database_url.split('@')[-1]}")
-        
-        # Создаем engine
-        engine = create_async_engine(database_url, echo=True)
-        
-        # Импортируем модели после создания engine
-        from app.models.queue import Base as QueueBase
-        from app.models.user import Base as UserBase
-        from app.models.chat import Base as ChatBase
-        
-        # Создаем все таблицы
-        async with engine.begin() as conn:
-            print("🗃️ Создаем таблицы...")
-            await conn.run_sync(QueueBase.metadata.create_all)
-            await conn.run_sync(UserBase.metadata.create_all) 
-            await conn.run_sync(ChatBase.metadata.create_all)
-            print("✅ Все таблицы созданы успешно!")
-        
-        await engine.dispose()
-        
-    except Exception as e:
-        print(f"❌ Ошибка инициализации БД: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+2. **Запустите контейнеры:**
+```bash
+docker-compose up -d
+```
 
-if __name__ == "__main__":
-    asyncio.run(init_database())
+## 📖 Использование
 
-    cheak it one more time
+### Команды для пользователей
 
-    import asyncio
-import sys
-from pathlib import Path
+- `/start` — показать табло с текущими курсами
+- `/idchat` или `/chat_id` — получить ID чата и пользователя
 
-sys.path.append(str(Path(__file__).parent.parent))
+### Функции табло
 
-async def check_database():
-    try:
-        from sqlalchemy.ext.asyncio import create_async_engine
-        from app.config.db import DatabaseConfig
-        
-        config = DatabaseConfig()
-        engine = create_async_engine(config.url, echo=False)
-        
-        async with engine.connect() as conn:
-            # Проверяем подключение
-            result = await conn.scalar("SELECT version()")
-            print(f"✅ Подключение к БД успешно! PostgreSQL: {result.split(',')[0]}")
-            
-            # Проверяем существующие таблицы
-            tables = await conn.scalar(
-                "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'"
-            )
-            print(f"📊 Найдено таблиц в БД: {tables}")
-        
-        await engine.dispose()
-        
-    except Exception as e:
-        print(f"❌ Ошибка подключения к БД: {e}")
-        sys.exit(1)
+- **🔄 Обновить курс** — добавить пользователя в очередь на обновление курса
+- **📊 Зафиксировать** — зафиксировать текущий курс (в разработке)
 
-if __name__ == "__main__":
-    asyncio.run(check_database())
+### Команды для администраторов
+
+- Ввод числового значения (например, `95.50`) — обновить основной курс USD/RUB
+- `/new_rate USD/RUB 82.80 83.50` — добавить/обновить валютную пару
+- `/remove_rate USD/RUB` — удалить валютную пару
+- `/clear_rates` — очистить все курсы
+
+### Форматы ввода курсов
+
+Поддерживаются различные форматы:
+- `USD/RUB 82.80 83.50`
+- `USD RUB 82.80 83.50`
+- `USD-RUB 82.80,83.50`
+- Пакетное обновление: несколько пар через запятую
+
+## 🏗️ Архитектура
+
+Проект следует принципам **чистой архитектуры** с разделением на слои:
+
+- **Handlers** — обработка входящих сообщений и команд
+- **Services** — бизнес-логика приложения
+- **DAO** — слой доступа к данным
+- **Models** — модели данных (DB, DTO, Config)
+- **Middlewares** — промежуточная обработка запросов
+
+### Основные сервисы
+
+- `RateService` — управление одним курсом
+- `MultiRateService` — управление множественными валютными парами
+- `QueueService` — управление очередью пользователей
+- `NotificationService` — отправка уведомлений
+
+## 🧪 Тестирование
+
+Проект включает unit и integration тесты:
+
+```bash
+# Запуск всех тестов
+pytest
+
+# Запуск с покрытием
+pytest --cov=app tests/
+```
+
+## 📝 Миграции базы данных
+
+Создание новой миграции:
+```bash
+alembic revision --autogenerate -m "описание изменений"
+```
+
+Применение миграций:
+```bash
+alembic upgrade head
+```
+
+Откат миграции:
+```bash
+alembic downgrade -1
+```
+
+## 🔧 Конфигурация
+
+### Переменные окружения
+
+- `BOT_PATH` — путь к директории проекта (опционально)
+
+### Конфигурационные файлы
+
+- `config/config.yaml` — основная конфигурация
+- `alembic.ini` — настройки миграций
+- `.env.prod` — переменные окружения для production
+
+## 📊 База данных
+
+### Основные таблицы
+
+- `exchange_rates` — курсы валютных пар
+- `queue_entries` — очередь пользователей
+- `users` — информация о пользователях
+- `chats` — информация о чатах
+- `user_stats` — статистика пользователей
+
+## 🚢 Развертывание
+
+### Production
+
+1. Настройте переменные окружения
+2. Запустите через Docker Compose:
+```bash
+docker-compose -f docker-compose.yml up -d
+```
+
+3. Проверьте логи:
+```bash
+docker-compose logs -f app
+```
+
+## 🤝 Вклад в проект
+
+1. Fork проекта
+2. Создайте feature-ветку (`git checkout -b feature/AmazingFeature`)
+3. Commit изменений (`git commit -m 'Add some AmazingFeature'`)
+4. Push в ветку (`git push origin feature/AmazingFeature`)
+5. Откройте Pull Request
+
+## 📄 Лицензия
+
+Этот проект создан для демонстрации навыков разработки.
+
+## 👤 Автор
+
+Разработано для портфолио и трудоустройства.
+
+## 📞 Контакты
+
+Для вопросов и предложений создайте Issue в репозитории.
+
+---
+
+**Примечание:** Этот проект демонстрирует навыки работы с:
+- Асинхронным программированием в Python
+- Фреймворком aiogram 3.x
+- SQLAlchemy ORM и миграциями
+- Docker и контейнеризацией
+- Архитектурными паттернами (DAO, Service Layer)
+- Тестированием (unit, integration)
