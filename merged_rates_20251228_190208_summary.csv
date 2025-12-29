@@ -1,0 +1,36 @@
+bank,bank_norm,currency,offers_count,sources,best_buy,best_buy_source,best_sell,best_sell_source
+А7-финансы ПСБ,а7 финансы псб,USD,1,Banki,78.02,Banki,80.95,Banki
+Агророс Банк,агророс банк,USD,1,Banki,78.34,Banki,80.79,Banki
+Ак Барс Банк,ак барс банк,USD,1,Banki,79.2,Banki,81.0,Banki
+Альфа-Банк,альфа банк,USD,1,Banki,77.0,Banki,79.0,Banki
+Банк ДОМ.РФ,банк дом рф,USD,1,Banki,76.0,Banki,86.0,Banki
+Банк ЗЕНИТ,банк зенит,USD,1,Banki,77.5,Banki,82.0,Banki
+Банк Казани,банк казани,USD,1,Banki,79.15,Banki,79.89,Banki
+Банк «Приморье»,банк приморье,USD,1,Banki,77.8,Banki,80.0,Banki
+Банк РМП,банк рмп,USD,1,Banki,78.0,Banki,80.8,Banki
+Банк «Санкт-Петербург»,банк санкт петербург,USD,1,Banki,78.7,Banki,81.4,Banki
+БыстроБанк,быстробанк,USD,1,Banki,78.6,Banki,78.85,Banki
+Внешфинбанк,внешфинбанк,USD,1,Banki,78.8,Banki,80.2,Banki
+Газпромбанк,газпромбанк,USD,1,Banki,76.0,Banki,83.1,Banki
+Живаго банк,живаго банк,USD,1,Banki,77.5,Banki,79.45,Banki
+Инго Банк,инго банк,USD,1,Banki,78.6,Banki,78.6,Banki
+КАМКОМБАНК,камкомбанк,USD,1,Banki,79.35,Banki,79.85,Banki
+Металлинвестбанк,металлинвестбанк,USD,1,Banki,76.7,Banki,79.5,Banki
+МТС Банк,мтс банк,USD,1,Banki,77.9,Banki,81.9,Banki
+Норвик Банк,норвик банк,USD,1,Banki,77.45,Banki,79.2,Banki
+НС Банк,нс банк,USD,1,Banki,77.0,Banki,80.5,Banki
+Первый Инвестиционный Банк,первый инвестиционный банк,USD,1,Banki,78.8,Banki,81.6,Banki
+Промсельхозбанк,промсельхозбанк,USD,1,Banki,75.0,Banki,81.0,Banki
+ПСБ,псб,USD,1,Banki,79.13,Banki,82.73,Banki
+Райффайзен Банк,райффайзен банк,USD,1,Banki,89.0,Banki,,
+Реалист Банк,реалист банк,USD,1,Banki,78.7,Banki,80.6,Banki
+Ренессанс Банк,ренессанс банк,USD,1,Banki,74.8,Banki,83.9,Banki
+Совкомбанк,совкомбанк,USD,1,Banki,76.25,Banki,79.75,Banki
+Солид Банк,солид банк,USD,1,Banki,78.0,Banki,79.25,Banki
+СОЦИУМ-БАНК,социум банк,USD,1,Banki,78.03,Banki,80.39,Banki
+Т-Банк,т банк,USD,1,Banki,75.85,Banki,80.5,Banki
+"АКБ ""Трансстройбанк"" (АО)",трансстройбанк,USD,4,"Banki,RBC",78.0,Banki,80.3,Banki
+Уралсиб,уралсиб,USD,1,Banki,76.26,Banki,82.47,Banki
+Экспобанк,экспобанк,USD,1,Banki,77.5,Banki,80.9,Banki
+"КБ ""ЭНЕРГОТРАНСБАНК"" (АО)",энерготрансбанк,USD,6,RBC,79.7,RBC,78.5,RBC
+"АО КБ ""ЮНИСТРИМ""",юнистрим,USD,19,RBC,80.5,RBC,79.5,RBC

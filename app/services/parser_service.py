@@ -5,7 +5,10 @@ import logging
 from datetime import datetime, time as dt_time
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.multi_rate_service import MultiRateService
-from app.parsers.currency_parsers import parse_cbr_rates, parse_rbc_rates, get_cbr_usd_rate, get_rbc_best_rates
+from app.parsers.currency_parsers import (
+    parse_cbr_rates, parse_rbc_rates, parse_banki_rates,
+    get_cbr_usd_rate, get_rbc_best_rates, get_banki_best_rates
+)
 
 logger = logging.getLogger(__name__)
 
@@ -84,33 +87,104 @@ class ParserService:
             if not best_rates:
                 logger.warning("⚠️ Не найдены лучшие курсы в данных РБК")
                 return False
-
-            success = await self.multi_service.update_rate_with_source(
+            
+            # Сохраняем два банка как отдельные источники
+            success1 = await self.multi_service.update_rate_with_source(
                 pair="USD/RUB",
-                buy_rate=best_rates['buy_rate'],
-                sell_rate=best_rates['sell_rate'],
-                source="rbc",
-                admin_id=None,
-                buy_bank=best_rates['buy_bank'],  # Передаем банки
-                sell_bank=best_rates['sell_bank']
+                buy_rate=best_rates['buy_bank']['buy'],
+                sell_rate=best_rates['buy_bank']['sell'],
+                source="rbc_buy",
+                admin_id=None
             )
-
-            if success:
-                logger.info(
-                    f"✅ Курс РБК обновлен: {best_rates['buy_bank']} {best_rates['buy_rate']:.2f} / {best_rates['sell_bank']} {best_rates['sell_rate']:.2f}")
+            
+            success2 = await self.multi_service.update_rate_with_source(
+                pair="USD/RUB",
+                buy_rate=best_rates['sell_bank']['buy'],
+                sell_rate=best_rates['sell_bank']['sell'],
+                source="rbc_sell",
+                admin_id=None
+            )
+            
+            if success1 and success2:
+                logger.info(f"✅ РБК обновлен: {best_rates['buy_bank']['name']} {best_rates['buy_bank']['buy']:.2f}/{best_rates['buy_bank']['sell']:.2f} | {best_rates['sell_bank']['name']} {best_rates['sell_bank']['buy']:.2f}/{best_rates['sell_bank']['sell']:.2f}")
             else:
                 logger.error("❌ Ошибка обновления курса РБК в БД")
-
-            return success
+            
+            return success1 and success2
 
         except Exception as e:
             logger.error(f"❌ Ошибка обновления РБК: {e}", exc_info=True)
             return False
     
+    async def update_banki_rates(self) -> bool:
+        """Обновляет курсы из Banki.ru"""
+        try:
+            if not self.is_work_time():
+                logger.debug("Вне рабочего времени, пропускаем обновление Banki.ru")
+                return False
+
+            logger.info("🔄 Начало обновления курсов Banki.ru...")
+            data = await parse_banki_rates()
+            if not data:
+                logger.warning("⚠️ Не удалось получить данные Banki.ru")
+                return False
+
+            best_rates = get_banki_best_rates(data)
+            if not best_rates:
+                logger.warning("⚠️ Не найдены лучшие курсы в данных Banki.ru")
+                return False
+            
+            # Сохраняем как отдельный источник
+            success = await self.multi_service.update_rate_with_source(
+                pair="USD/RUB",
+                buy_rate=best_rates['buy_bank']['buy'] or best_rates['sell_bank']['buy'],
+                sell_rate=best_rates['sell_bank']['sell'] or best_rates['buy_bank']['sell'],
+                source="banki",
+                admin_id=None,
+                buy_bank=best_rates['buy_bank']['name'],
+                sell_bank=best_rates['sell_bank']['name']
+            )
+            
+            if success:
+                logger.info(f"✅ Banki.ru обновлен: {best_rates['buy_bank']['name']} buy={best_rates['buy_bank']['buy']}, sell={best_rates['sell_bank']['sell']}")
+            else:
+                logger.error("❌ Ошибка обновления курса Banki.ru в БД")
+            
+            return success
+
+        except Exception as e:
+            logger.error(f"❌ Ошибка обновления Banki.ru: {e}", exc_info=True)
+            return False
+    
     async def update_all_auto_rates(self):
-        """Обновляет все автоматические курсы"""
+        """
+        Обновляет все автоматические курсы.
+        
+        Стратегия обновления:
+        - ЦБ РФ: всегда обновляем (официальный курс, обновляется раз в день)
+        - РБК: обновляем (быстрый парсер)
+        - Banki.ru: обновляем (медленный парсер с Playwright, но дает больше данных)
+        
+        Все парсеры работают параллельно для ускорения.
+        """
         logger.info("🔄 Начало обновления всех автоматических курсов...")
-        await self.update_cbr_rates()
-        await self.update_rbc_rates()
+        
+        # Запускаем парсеры параллельно для ускорения
+        # ЦБ - быстрый, можно отдельно
+        # РБК и Banki.ru - медленные, запускаем параллельно
+        import asyncio
+        
+        # ЦБ обновляем первым (быстрый)
+        cbr_task = asyncio.create_task(self.update_cbr_rates())
+        
+        # РБК и Banki.ru запускаем параллельно
+        rbc_task = asyncio.create_task(self.update_rbc_rates())
+        banki_task = asyncio.create_task(self.update_banki_rates())
+        
+        # Ждем завершения всех
+        await cbr_task
+        await rbc_task
+        await banki_task
+        
         logger.info("✅ Обновление автоматических курсов завершено")
 

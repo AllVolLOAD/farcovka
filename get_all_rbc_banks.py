@@ -1,267 +1,218 @@
 """
-Парсер для получения ВСЕХ банков с РБК через Selenium
-Переходит по страницам 1, 2, 3, 4, 5... пока есть данные
+Парсер РБК cash.rbc.ru: собирает все строки с банков/офисов по страницам.
+Подходит для редкого запуска на сервере (headless по умолчанию).
 """
-import json
-import sys
-from pathlib import Path
-from datetime import datetime
-from typing import List, Dict
-import logging
-import time
-import re
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import logging
+import re
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def get_all_rbc_banks() -> List[Dict]:
-    """Получает ВСЕ банки с РБК, переходя по страницам через Selenium"""
+def _extract_num(text: str) -> Optional[float]:
+    if not text:
+        return None
+    t = text.replace("\xa0", " ").replace(",", ".").strip()
+    m = re.search(r"\d+(?:\.\d+)?", t)
+    if not m:
+        return None
     try:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
-        # Браузер ВИДИМЫЙ - обязательно!
-        options = webdriver.ChromeOptions()
-        # НЕ используем headless - браузер должен быть видимым
-        # options.add_argument('--headless')  # ЗАКОММЕНТИРОВАНО - браузер должен быть видимым!
-        options.add_argument('--start-maximized')  # Полный экран
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')
-        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-        
-        print("🔧 Создаем драйвер Chrome (БРАУЗЕР БУДЕТ ВИДИМЫМ)...")
-        print("   ⚠️ ВАЖНО: Браузер откроется и вы увидите весь процесс!")
-        print("   ⚠️ Вы должны видеть окно Chrome с прокруткой страниц!")
-        driver = webdriver.Chrome(options=options)
-        driver.set_page_load_timeout(60)
-        print("✅ Драйвер создан, браузер открыт - ВЫ ДОЛЖНЫ ВИДЕТЬ ОКНО CHROME!")
-        
-        all_results = []
-        page_num = 1
-        max_pages = 100
-        
-        def extract_num(text: str):
-            if not text:
-                return None
-            t = text.replace('\xa0', ' ').replace(',', '.').strip()
-            m = re.search(r"\d+[.]?\d*", t)
-            return float(m.group(0)) if m else None
-        
-        def get_row_data(row_elem):
-            """Извлекает данные из строки - собираем ВСЕ"""
-            try:
-                name_el = row_elem.find_element(By.CSS_SELECTOR, '.quote__office__one__name')
-                name = name_el.text.strip() if name_el else ''
-                
-                if not name:
-                    return None
-                
-                buy_el = row_elem.find_element(By.CSS_SELECTOR, '.quote__office__one__buy')
-                sell_el = row_elem.find_element(By.CSS_SELECTOR, '.quote__office__one__sell')
-                
-                buy = extract_num(buy_el.text) if buy_el else None
-                sell = extract_num(sell_el.text) if sell_el else None
-                
-                # Собираем даже если только один курс есть
-                if buy is None and sell is None:
-                    return None
-                
-                address = ''
-                try:
-                    address_el = row_elem.find_element(By.CSS_SELECTOR, '.quote__office__one__address')
-                    address = address_el.text.strip() if address_el else ''
-                except:
-                    pass
-                
-                return {
-                    'source': 'RBC',
-                    'bank': name,
-                    'currency': 'USD',
-                    'buy': buy,
-                    'sell': sell,
-                    'address': address
-                }
-            except Exception as e:
-                return None
-        
+        return float(m.group(0))
+    except ValueError:
+        return None
+
+
+@dataclass(frozen=True)
+class _RowKey:
+    bank: str
+    buy: Optional[float]
+    sell: Optional[float]
+    address: str
+
+
+async def _parse_rbc_page(page: Any, url: str, *, toggle_pro: bool) -> List[Dict[str, Any]]:
+    await page.goto(url, wait_until="load", timeout=60000)
+    await page.wait_for_timeout(1200)
+
+    if toggle_pro:
         try:
-            while page_num <= max_pages:
-                url = f"https://cash.rbc.ru/cash/?currency=3&city=1&diapason=3&page={page_num}"
-                
-                print(f"\n{'='*70}")
-                print(f"📄 СТРАНИЦА {page_num}: {url}")
-                print(f"{'='*70}")
-                
-                try:
-                    driver.get(url)
-                    time.sleep(2)
-                    
-                    WebDriverWait(driver, 30).until(
-                        lambda d: d.execute_script('return document.readyState') == 'complete'
-                    )
-                    time.sleep(3)
-                    
-                    # Переключаем на профессиональную версию только на первой странице
-                    if page_num == 1:
-                        try:
-                            toggle = driver.find_element(By.CSS_SELECTOR, '.js-toggle-versions-text')
-                            if toggle and 'Профессиональная' in toggle.text:
-                                driver.execute_script("arguments[0].click();", toggle)
-                                time.sleep(3)
-                                print("   ✅ Переключились на профессиональную версию")
-                        except:
-                            pass
-                    
-                    # Ждем появления элементов
-                    try:
-                        WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.CSS_SELECTOR, '.quote__office__one.js-one-office'))
-                        )
-                    except:
-                        pass
-                    
-                    # ПРОКРУЧИВАЕМ страницу до конца, чтобы загрузить все элементы
-                    print(f"   📜 ПРОКРУЧИВАЕМ страницу {page_num} до конца (вы увидите это в браузере)...")
-                    last_height = driver.execute_script("return document.body.scrollHeight")
-                    scroll_attempts = 0
-                    max_scroll_attempts = 15  # Увеличиваем количество попыток
-                    
-                    while scroll_attempts < max_scroll_attempts:
-                        # Прокручиваем вниз плавно
-                        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                        time.sleep(1.5)  # Ждем загрузки новых элементов
-                        
-                        # Проверяем новую высоту
-                        new_height = driver.execute_script("return document.body.scrollHeight")
-                        if new_height == last_height:
-                            # Высота не изменилась, значит прокрутили до конца
-                            print(f"      ✅ Прокрутка завершена (высота не изменилась)")
-                            break
-                        last_height = new_height
-                        scroll_attempts += 1
-                        print(f"      📜 Прокрутка {scroll_attempts}/{max_scroll_attempts}, высота: {new_height}px")
-                    
-                    # Прокручиваем обратно вверх для удобства
-                    print(f"   ⬆️ Прокручиваем обратно вверх...")
-                    driver.execute_script("window.scrollTo(0, 0);")
-                    time.sleep(1)
-                    print(f"   ✅ Страница {page_num} полностью прокручена и готова к парсингу")
-                    
-                    # Собираем строки ПОСЛЕ прокрутки
-                    rows = driver.find_elements(By.CSS_SELECTOR, '.quote__office__one.js-one-office')
-                    if len(rows) == 0:
-                        rows = driver.find_elements(By.CSS_SELECTOR, '.quote__office__one')
-                    
-                    print(f"   📋 Найдено строк: {len(rows)}")
-                    
-                    if len(rows) == 0:
-                        print(f"   ⚠️ Строк не найдено, останавливаемся")
-                        break
-                    
-                    # Парсим ВСЕ строки
-                    page_count = 0
-                    for i in range(len(rows)):
-                        data = get_row_data(rows[i])
-                        if data:
-                            all_results.append(data)
-                            page_count += 1
-                    
-                    print(f"   ✅ Собрано валидных: {page_count}")
-                    print(f"   📦 ВСЕГО собрано за все страницы: {len(all_results)}")
-                    
-                    if page_count == 0:
-                        print(f"   ⚠️ Валидных данных нет, останавливаемся")
-                        break
-                    
-                    # ПРОСТАЯ ЛОГИКА: просто переходим на следующую страницу по порядку (1, 2, 3, 4...)
-                    # Если на странице нет данных или мало данных - останавливаемся
-                    next_page = page_num + 1
-                    
-                    # Если собрали мало данных (меньше 10), вероятно это последняя страница
-                    if page_count < 10:
-                        print(f"   ⚠️ Собрано мало данных ({page_count}), вероятно последняя страница")
-                        print(f"   ✅ Останавливаемся на странице {page_num}")
-                        break
-                    
-                    # Переходим на следующую страницу по порядку
-                    print(f"   ➡️ Переходим на страницу {next_page} (последовательный переход)...")
-                    page_num = next_page
-                    time.sleep(2)  # Пауза перед переходом
-                    
-                except Exception as e:
-                    logger.error(f"❌ Ошибка на странице {page_num}: {e}")
-                    print(f"   ❌ Ошибка: {e}")
-                    break
-            
-            # Убираем дубликаты только в конце
-            unique_results = []
-            seen = set()
-            for r in all_results:
-                key = (r.get('bank', '').strip(), r.get('buy'), r.get('sell'))
-                if key not in seen:
-                    seen.add(key)
-                    unique_results.append(r)
-            
-            print(f"\n{'='*70}")
-            print(f"📊 ИТОГО: собрано {len(all_results)}, уникальных {len(unique_results)}")
-            print(f"{'='*70}\n")
-            
-            return unique_results
-            
-        finally:
-            try:
-                driver.quit()
-            except:
-                pass
-                
-    except Exception as e:
-        logger.error(f"❌ Критическая ошибка: {e}", exc_info=True)
+            toggle = page.locator(".js-toggle-versions-text")
+            if await toggle.count() > 0:
+                text = (await toggle.first.inner_text()).strip()
+                if "Профессиональная" in text:
+                    await toggle.first.click(timeout=5000)
+                    await page.wait_for_timeout(1200)
+        except Exception:
+            pass
+
+    try:
+        await page.wait_for_selector(".quote__office__one", timeout=15000)
+    except Exception:
         return []
 
+    # Доскролливаем страницу (иногда подгружаются элементы)
+    last_height = 0
+    for _ in range(12):
+        height = await page.evaluate("() => document.body.scrollHeight")
+        if height == last_height:
+            break
+        last_height = height
+        await page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+        await page.wait_for_timeout(600)
 
-if __name__ == '__main__':
-    print("="*70)
-    print("ПОЛУЧЕНИЕ ВСЕХ БАНКОВ С РБК (ПО СТРАНИЦАМ)")
-    print("="*70)
-    
-    results = get_all_rbc_banks()
-    
-    if results:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        json_file = f'rbc_all_banks_{timestamp}.json'
-        csv_file = f'rbc_all_banks_{timestamp}.csv'
-        
-        # Сохраняем JSON
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(results, f, ensure_ascii=False, indent=2)
-        print(f"✅ JSON сохранён: {json_file}")
-        
-        # Сохраняем CSV
-        import csv
-        if results:
-            with open(csv_file, 'w', encoding='utf-8', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=results[0].keys())
-                writer.writeheader()
-                writer.writerows(results)
-            print(f"✅ CSV сохранён: {csv_file}")
-        
-        print("\n" + "="*70)
-        print("СТАТИСТИКА")
-        print("="*70)
-        print(f"Всего банков: {len(results)}")
-        print(f"Уникальных названий банков: {len(set(r['bank'] for r in results))}")
-        print(f"Банков с обоими курсами: {len([r for r in results if r.get('buy') and r.get('sell')])}")
-        
-        print("\nПервые 10 банков:")
-        for i, bank in enumerate(results[:10], 1):
-            print(f"  {i}. {bank['bank']}: buy={bank.get('buy')}, sell={bank.get('sell')}")
-    else:
-        print("❌ Не удалось получить данные")
+    rows = await page.evaluate(
+        """
+        () => {
+          const sels = ['.quote__office__one.js-one-office', '.quote__office__one'];
+          const nodes = sels.flatMap(sel => Array.from(document.querySelectorAll(sel)));
+          const uniq = [];
+          const seen = new Set();
+          for (const n of nodes) {
+            const key = n.getAttribute('data-id') || n.innerText?.slice(0, 64) || Math.random().toString();
+            if (!seen.has(key)) { seen.add(key); uniq.push(n); }
+          }
+          const getText = (root, sel) => {
+            const el = root.querySelector(sel);
+            return (el ? el.textContent : '').trim();
+          };
+          return uniq.map(r => ({
+            bank: getText(r, '.quote__office__one__name'),
+            buy_text: getText(r, '.quote__office__one__buy'),
+            sell_text: getText(r, '.quote__office__one__sell'),
+            address: getText(r, '.quote__office__one__address')
+          }));
+        }
+        """
+    )
+
+    results: List[Dict[str, Any]] = []
+    for r in rows:
+        bank = (r.get("bank") or "").strip()
+        if not bank:
+            continue
+        buy = _extract_num(r.get("buy_text") or "")
+        sell = _extract_num(r.get("sell_text") or "")
+        if buy is None and sell is None:
+            continue
+        results.append(
+            {
+                "source": "RBC",
+                "bank": bank,
+                "currency": "USD",
+                "buy": buy,
+                "sell": sell,
+                "address": (r.get("address") or "").strip(),
+            }
+        )
+    return results
+
+
+async def get_all_rbc_banks(*, headless: bool = True, max_pages: int = 100) -> List[Dict[str, Any]]:
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError as e:
+        logger.error("Playwright не установлен: pip install playwright && playwright install chromium")
+        raise
+
+    all_rows: List[Dict[str, Any]] = []
+    seen: set[_RowKey] = set()
+    no_new_pages = 0
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=headless, args=["--no-sandbox", "--disable-dev-shm-usage"])
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            locale="ru-RU",
+            timezone_id="Europe/Moscow",
+        )
+        page = await context.new_page()
+
+        try:
+            for page_num in range(1, max_pages + 1):
+                url = f"https://cash.rbc.ru/cash/?currency=3&city=1&diapason=3&page={page_num}"
+                logger.info("RBC page %s: %s", page_num, url)
+
+                page_rows = await _parse_rbc_page(page, url, toggle_pro=(page_num == 1))
+                if not page_rows:
+                    break
+
+                new_count = 0
+                for r in page_rows:
+                    key = _RowKey(
+                        bank=(r.get("bank") or "").strip(),
+                        buy=r.get("buy"),
+                        sell=r.get("sell"),
+                        address=(r.get("address") or "").strip(),
+                    )
+                    if key not in seen:
+                        seen.add(key)
+                        all_rows.append(r)
+                        new_count += 1
+
+                logger.info("RBC page %s: rows=%s new=%s total_unique=%s", page_num, len(page_rows), new_count, len(all_rows))
+                if new_count == 0:
+                    no_new_pages += 1
+                    if no_new_pages >= 2:
+                        break
+                else:
+                    no_new_pages = 0
+
+        finally:
+            await context.close()
+            await browser.close()
+
+    return all_rows
+
+
+def _save_json_csv(rows: List[Dict[str, Any]], *, prefix: str) -> Tuple[Path, Path]:
+    json_path = Path(f"{prefix}.json")
+    csv_path = Path(f"{prefix}.csv")
+
+    json_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    if rows:
+        fieldnames = ["source", "bank", "currency", "buy", "sell", "address"]
+        with csv_path.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=fieldnames)
+            w.writeheader()
+            for r in rows:
+                w.writerow({k: r.get(k) for k in fieldnames})
+    return json_path, csv_path
+
+
+async def _amain() -> int:
+    ap = argparse.ArgumentParser(description="RBC cash.rbc.ru parser (all pages).")
+    ap.add_argument("--headed", action="store_true", help="Run with visible browser window.")
+    ap.add_argument("--max-pages", type=int, default=100, help="Safety limit.")
+    args = ap.parse_args()
+
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    prefix = f"rbc_all_banks_{ts}"
+
+    rows = await get_all_rbc_banks(headless=not args.headed, max_pages=args.max_pages)
+    if not rows:
+        logger.error("Не удалось получить данные РБК")
+        return 2
+
+    json_path, csv_path = _save_json_csv(rows, prefix=prefix)
+    logger.info("Saved: %s", json_path)
+    logger.info("Saved: %s", csv_path)
+    logger.info("Total rows: %s", len(rows))
+    return 0
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    raise SystemExit(asyncio.run(_amain()))

@@ -1,0 +1,1443 @@
+{
+  "stats": {
+    "input_files": [
+      "rbc_all_banks_20251223_213153.json",
+      "rbc_all_banks_20251223_213401.json",
+      "rbc_all_banks_20251223_213446.json",
+      "rbc_all_banks_20251223_214216.json",
+      "banki_rates_20251228_190200.json"
+    ],
+    "input_records_total": 145,
+    "input_records_bad": 0,
+    "output_banks": 35,
+    "output_offers_total": 61
+  },
+  "data": [
+    {
+      "bank": "А7-финансы ПСБ",
+      "bank_norm": "а7 финансы псб",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.02,
+        "source": "Banki",
+        "bank_raw": "А7-финансы ПСБ"
+      },
+      "best_sell": {
+        "value": 80.95,
+        "source": "Banki",
+        "bank_raw": "А7-финансы ПСБ"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "А7-финансы ПСБ",
+          "buy": 78.02,
+          "sell": 80.95,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Агророс Банк",
+      "bank_norm": "агророс банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.34,
+        "source": "Banki",
+        "bank_raw": "Агророс Банк"
+      },
+      "best_sell": {
+        "value": 80.79,
+        "source": "Banki",
+        "bank_raw": "Агророс Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Агророс Банк",
+          "buy": 78.34,
+          "sell": 80.79,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Ак Барс Банк",
+      "bank_norm": "ак барс банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 79.2,
+        "source": "Banki",
+        "bank_raw": "Ак Барс Банк"
+      },
+      "best_sell": {
+        "value": 81.0,
+        "source": "Banki",
+        "bank_raw": "Ак Барс Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Ак Барс Банк",
+          "buy": 79.2,
+          "sell": 81.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Альфа-Банк",
+      "bank_norm": "альфа банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.0,
+        "source": "Banki",
+        "bank_raw": "Альфа-Банк"
+      },
+      "best_sell": {
+        "value": 79.0,
+        "source": "Banki",
+        "bank_raw": "Альфа-Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Альфа-Банк",
+          "buy": 77.0,
+          "sell": 79.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк ДОМ.РФ",
+      "bank_norm": "банк дом рф",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 76.0,
+        "source": "Banki",
+        "bank_raw": "Банк ДОМ.РФ"
+      },
+      "best_sell": {
+        "value": 86.0,
+        "source": "Banki",
+        "bank_raw": "Банк ДОМ.РФ"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк ДОМ.РФ",
+          "buy": 76.0,
+          "sell": 86.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк ЗЕНИТ",
+      "bank_norm": "банк зенит",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.5,
+        "source": "Banki",
+        "bank_raw": "Банк ЗЕНИТ"
+      },
+      "best_sell": {
+        "value": 82.0,
+        "source": "Banki",
+        "bank_raw": "Банк ЗЕНИТ"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк ЗЕНИТ",
+          "buy": 77.5,
+          "sell": 82.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк Казани",
+      "bank_norm": "банк казани",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 79.15,
+        "source": "Banki",
+        "bank_raw": "Банк Казани"
+      },
+      "best_sell": {
+        "value": 79.89,
+        "source": "Banki",
+        "bank_raw": "Банк Казани"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк Казани",
+          "buy": 79.15,
+          "sell": 79.89,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк «Приморье»",
+      "bank_norm": "банк приморье",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.8,
+        "source": "Banki",
+        "bank_raw": "Банк «Приморье»"
+      },
+      "best_sell": {
+        "value": 80.0,
+        "source": "Banki",
+        "bank_raw": "Банк «Приморье»"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк «Приморье»",
+          "buy": 77.8,
+          "sell": 80.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк РМП",
+      "bank_norm": "банк рмп",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.0,
+        "source": "Banki",
+        "bank_raw": "Банк РМП"
+      },
+      "best_sell": {
+        "value": 80.8,
+        "source": "Banki",
+        "bank_raw": "Банк РМП"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк РМП",
+          "buy": 78.0,
+          "sell": 80.8,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Банк «Санкт-Петербург»",
+      "bank_norm": "банк санкт петербург",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.7,
+        "source": "Banki",
+        "bank_raw": "Банк «Санкт-Петербург»"
+      },
+      "best_sell": {
+        "value": 81.4,
+        "source": "Banki",
+        "bank_raw": "Банк «Санкт-Петербург»"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Банк «Санкт-Петербург»",
+          "buy": 78.7,
+          "sell": 81.4,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "БыстроБанк",
+      "bank_norm": "быстробанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.6,
+        "source": "Banki",
+        "bank_raw": "БыстроБанк"
+      },
+      "best_sell": {
+        "value": 78.85,
+        "source": "Banki",
+        "bank_raw": "БыстроБанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "БыстроБанк",
+          "buy": 78.6,
+          "sell": 78.85,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Внешфинбанк",
+      "bank_norm": "внешфинбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.8,
+        "source": "Banki",
+        "bank_raw": "Внешфинбанк"
+      },
+      "best_sell": {
+        "value": 80.2,
+        "source": "Banki",
+        "bank_raw": "Внешфинбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Внешфинбанк",
+          "buy": 78.8,
+          "sell": 80.2,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Газпромбанк",
+      "bank_norm": "газпромбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 76.0,
+        "source": "Banki",
+        "bank_raw": "Газпромбанк"
+      },
+      "best_sell": {
+        "value": 83.1,
+        "source": "Banki",
+        "bank_raw": "Газпромбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Газпромбанк",
+          "buy": 76.0,
+          "sell": 83.1,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Живаго банк",
+      "bank_norm": "живаго банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.5,
+        "source": "Banki",
+        "bank_raw": "Живаго банк"
+      },
+      "best_sell": {
+        "value": 79.45,
+        "source": "Banki",
+        "bank_raw": "Живаго банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Живаго банк",
+          "buy": 77.5,
+          "sell": 79.45,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Инго Банк",
+      "bank_norm": "инго банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.6,
+        "source": "Banki",
+        "bank_raw": "Инго Банк"
+      },
+      "best_sell": {
+        "value": 78.6,
+        "source": "Banki",
+        "bank_raw": "Инго Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Инго Банк",
+          "buy": 78.6,
+          "sell": 78.6,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "КАМКОМБАНК",
+      "bank_norm": "камкомбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 79.35,
+        "source": "Banki",
+        "bank_raw": "КАМКОМБАНК"
+      },
+      "best_sell": {
+        "value": 79.85,
+        "source": "Banki",
+        "bank_raw": "КАМКОМБАНК"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "КАМКОМБАНК",
+          "buy": 79.35,
+          "sell": 79.85,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Металлинвестбанк",
+      "bank_norm": "металлинвестбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 76.7,
+        "source": "Banki",
+        "bank_raw": "Металлинвестбанк"
+      },
+      "best_sell": {
+        "value": 79.5,
+        "source": "Banki",
+        "bank_raw": "Металлинвестбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Металлинвестбанк",
+          "buy": 76.7,
+          "sell": 79.5,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "МТС Банк",
+      "bank_norm": "мтс банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.9,
+        "source": "Banki",
+        "bank_raw": "МТС Банк"
+      },
+      "best_sell": {
+        "value": 81.9,
+        "source": "Banki",
+        "bank_raw": "МТС Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "МТС Банк",
+          "buy": 77.9,
+          "sell": 81.9,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Норвик Банк",
+      "bank_norm": "норвик банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.45,
+        "source": "Banki",
+        "bank_raw": "Норвик Банк"
+      },
+      "best_sell": {
+        "value": 79.2,
+        "source": "Banki",
+        "bank_raw": "Норвик Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Норвик Банк",
+          "buy": 77.45,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "НС Банк",
+      "bank_norm": "нс банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.0,
+        "source": "Banki",
+        "bank_raw": "НС Банк"
+      },
+      "best_sell": {
+        "value": 80.5,
+        "source": "Banki",
+        "bank_raw": "НС Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "НС Банк",
+          "buy": 77.0,
+          "sell": 80.5,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Первый Инвестиционный Банк",
+      "bank_norm": "первый инвестиционный банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.8,
+        "source": "Banki",
+        "bank_raw": "Первый Инвестиционный Банк"
+      },
+      "best_sell": {
+        "value": 81.6,
+        "source": "Banki",
+        "bank_raw": "Первый Инвестиционный Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Первый Инвестиционный Банк",
+          "buy": 78.8,
+          "sell": 81.6,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Промсельхозбанк",
+      "bank_norm": "промсельхозбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 75.0,
+        "source": "Banki",
+        "bank_raw": "Промсельхозбанк"
+      },
+      "best_sell": {
+        "value": 81.0,
+        "source": "Banki",
+        "bank_raw": "Промсельхозбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Промсельхозбанк",
+          "buy": 75.0,
+          "sell": 81.0,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "ПСБ",
+      "bank_norm": "псб",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 79.13,
+        "source": "Banki",
+        "bank_raw": "ПСБ"
+      },
+      "best_sell": {
+        "value": 82.73,
+        "source": "Banki",
+        "bank_raw": "ПСБ"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "ПСБ",
+          "buy": 79.13,
+          "sell": 82.73,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Райффайзен Банк",
+      "bank_norm": "райффайзен банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 89.0,
+        "source": "Banki",
+        "bank_raw": "Райффайзен Банк"
+      },
+      "best_sell": null,
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Райффайзен Банк",
+          "buy": 89.0,
+          "sell": null,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Реалист Банк",
+      "bank_norm": "реалист банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.7,
+        "source": "Banki",
+        "bank_raw": "Реалист Банк"
+      },
+      "best_sell": {
+        "value": 80.6,
+        "source": "Banki",
+        "bank_raw": "Реалист Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Реалист Банк",
+          "buy": 78.7,
+          "sell": 80.6,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Ренессанс Банк",
+      "bank_norm": "ренессанс банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 74.8,
+        "source": "Banki",
+        "bank_raw": "Ренессанс Банк"
+      },
+      "best_sell": {
+        "value": 83.9,
+        "source": "Banki",
+        "bank_raw": "Ренессанс Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Ренессанс Банк",
+          "buy": 74.8,
+          "sell": 83.9,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Совкомбанк",
+      "bank_norm": "совкомбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 76.25,
+        "source": "Banki",
+        "bank_raw": "Совкомбанк"
+      },
+      "best_sell": {
+        "value": 79.75,
+        "source": "Banki",
+        "bank_raw": "Совкомбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Совкомбанк",
+          "buy": 76.25,
+          "sell": 79.75,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Солид Банк",
+      "bank_norm": "солид банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.0,
+        "source": "Banki",
+        "bank_raw": "Солид Банк"
+      },
+      "best_sell": {
+        "value": 79.25,
+        "source": "Banki",
+        "bank_raw": "Солид Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Солид Банк",
+          "buy": 78.0,
+          "sell": 79.25,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "СОЦИУМ-БАНК",
+      "bank_norm": "социум банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 78.03,
+        "source": "Banki",
+        "bank_raw": "СОЦИУМ-БАНК"
+      },
+      "best_sell": {
+        "value": 80.39,
+        "source": "Banki",
+        "bank_raw": "СОЦИУМ-БАНК"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "СОЦИУМ-БАНК",
+          "buy": 78.03,
+          "sell": 80.39,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Т-Банк",
+      "bank_norm": "т банк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 75.85,
+        "source": "Banki",
+        "bank_raw": "Т-Банк"
+      },
+      "best_sell": {
+        "value": 80.5,
+        "source": "Banki",
+        "bank_raw": "Т-Банк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Т-Банк",
+          "buy": 75.85,
+          "sell": 80.5,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "АКБ \"Трансстройбанк\" (АО)",
+      "bank_norm": "трансстройбанк",
+      "currency": "USD",
+      "sources": [
+        "Banki",
+        "RBC"
+      ],
+      "offers_count": 4,
+      "best_buy": {
+        "value": 78.0,
+        "source": "Banki",
+        "bank_raw": "Трансстройбанк"
+      },
+      "best_sell": {
+        "value": 80.3,
+        "source": "Banki",
+        "bank_raw": "Трансстройбанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Трансстройбанк",
+          "buy": 78.0,
+          "sell": 80.3,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Теплый Стан\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Домодедово\"",
+          "buy": 86.0,
+          "sell": 71.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Внуково\"",
+          "buy": 86.5,
+          "sell": 71.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Уралсиб",
+      "bank_norm": "уралсиб",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 76.26,
+        "source": "Banki",
+        "bank_raw": "Уралсиб"
+      },
+      "best_sell": {
+        "value": 82.47,
+        "source": "Banki",
+        "bank_raw": "Уралсиб"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Уралсиб",
+          "buy": 76.26,
+          "sell": 82.47,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "Экспобанк",
+      "bank_norm": "экспобанк",
+      "currency": "USD",
+      "sources": [
+        "Banki"
+      ],
+      "offers_count": 1,
+      "best_buy": {
+        "value": 77.5,
+        "source": "Banki",
+        "bank_raw": "Экспобанк"
+      },
+      "best_sell": {
+        "value": 80.9,
+        "source": "Banki",
+        "bank_raw": "Экспобанк"
+      },
+      "offers": [
+        {
+          "source": "Banki",
+          "bank_raw": "Экспобанк",
+          "buy": 77.5,
+          "sell": 80.9,
+          "address": "",
+          "input_files": [
+            "banki_rates_20251228_190200.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО)",
+      "bank_norm": "энерготрансбанк",
+      "currency": "USD",
+      "sources": [
+        "RBC"
+      ],
+      "offers_count": 6,
+      "best_buy": {
+        "value": 79.7,
+        "source": "RBC",
+        "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\""
+      },
+      "best_sell": {
+        "value": 78.5,
+        "source": "RBC",
+        "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\""
+      },
+      "offers": [
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Теплый Стан\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Каширский\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Лефортово\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Белая Дача\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Нижегородский\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "АО КБ \"ЮНИСТРИМ\"",
+      "bank_norm": "юнистрим",
+      "currency": "USD",
+      "sources": [
+        "RBC"
+      ],
+      "offers_count": 19,
+      "best_buy": {
+        "value": 80.5,
+        "source": "RBC",
+        "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 167"
+      },
+      "best_sell": {
+        "value": 79.5,
+        "source": "RBC",
+        "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 27"
+      },
+      "offers": [
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 167",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 211",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 208",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 190",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 79",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 130",
+          "buy": 81.2,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 268",
+          "buy": 81.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 11",
+          "buy": 81.5,
+          "sell": 78.6,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 265",
+          "buy": 81.6,
+          "sell": 78.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 176",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 242",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 69",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 263",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 247",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 235",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 74",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 193",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 153",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 27",
+          "buy": 82.4,
+          "sell": 79.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    }
+  ]
+}

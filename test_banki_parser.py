@@ -65,60 +65,52 @@ async def parse_banki_rates_playwright() -> Optional[List[Dict]]:
             
             logger.info("✅ Страница загружена")
             
-            # Кликаем по кнопке "Показать еще" несколько раз
-            max_clicks = 10
+            # Кликаем по кнопке "Показать еще" пока список растет
+            max_clicks = 60
             click_count = 0
+            no_progress = 0
+            items_locator = page.locator('div[data-test="currency__rates-form__result-item"]')
+            button_locator = page.locator('a[data-test="button"]:has-text("Показать еще")')
             
             while click_count < max_clicks:
                 try:
-                    # Ищем кнопку "Показать еще"
-                    button = None
-                    
-                    # Способ 1: по data-test="button" и тексту
-                    try:
-                        button = await page.query_selector('a[data-test="button"]:has-text("Показать еще")')
-                    except:
-                        pass
-                    
-                    if not button:
-                        # Способ 2: по частичному тексту через xpath
-                        try:
-                            button = await page.query_selector('xpath=//a[contains(text(), "Показать еще")]')
-                        except:
-                            pass
-                    
-                    if button:
-                        # Проверяем видимость
-                        is_visible = await button.is_visible()
-                        if not is_visible:
-                            logger.info("ℹ️ Кнопка 'Показать еще' не видна")
-                            break
-                        
-                        # Прокручиваем к кнопке
-                        await button.scroll_into_view_if_needed()
-                        await asyncio.sleep(1)  # Пауза перед кликом
-                        
-                        # Кликаем
-                        await button.click()
-                        click_count += 1
-                        
-                        logger.info(f"🖱️ Клик #{click_count} по кнопке 'Показать еще'")
-                        
-                        # Ждем загрузки (как человек - с паузой)
-                        await asyncio.sleep(2 + (click_count * 0.5))
-                        
-                        # Ждем загрузки контента (используем 'load' вместо 'networkidle')
-                        try:
-                            await page.wait_for_load_state('load', timeout=10000)
-                        except:
-                            pass
-                        
-                        # Дополнительная пауза для загрузки новых элементов
-                        await asyncio.sleep(2)
-                    else:
+                    if await button_locator.count() == 0:
                         logger.info("ℹ️ Кнопка 'Показать еще' не найдена, возможно все загружено")
                         break
-                        
+                    
+                    button = button_locator.first
+                    if not await button.is_visible():
+                        logger.info("ℹ️ Кнопка 'Показать еще' не видна")
+                        break
+                    
+                    before_count = await items_locator.count()
+                    
+                    await button.scroll_into_view_if_needed()
+                    await asyncio.sleep(0.5)
+                    await button.click()
+                    click_count += 1
+                    
+                    logger.info(f"🖱️ Клик #{click_count} по кнопке 'Показать еще' (элементов было: {before_count})")
+                    
+                    try:
+                        await page.wait_for_function(
+                            "(before) => document.querySelectorAll('div[data-test=\"currency__rates-form__result-item\"]').length > before",
+                            arg=before_count,
+                            timeout=10000,
+                        )
+                    except Exception:
+                        pass
+                    
+                    after_count = await items_locator.count()
+                    if after_count <= before_count:
+                        no_progress += 1
+                        logger.info(f"📊 Прогресса нет: {after_count} (попытка {no_progress}/2)")
+                        if no_progress >= 2:
+                            break
+                    else:
+                        no_progress = 0
+                    
+                    await asyncio.sleep(1.0)
                 except Exception as e:
                     logger.warning(f"⚠️ Ошибка при клике: {e}")
                     break
@@ -354,6 +346,37 @@ async def main():
     rates = await parse_banki_rates()
     
     if rates:
+        # Сохраняем результаты в JSON/CSV для последующего объединения с другими источниками
+        try:
+            from datetime import datetime
+            import json
+            import csv
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            json_file = f"banki_rates_{timestamp}.json"
+            csv_file = f"banki_rates_{timestamp}.csv"
+
+            rates_to_save = []
+            for r in rates:
+                if isinstance(r, dict):
+                    rr = dict(r)
+                    rr.setdefault("source", "Banki")
+                    rates_to_save.append(rr)
+
+            with open(json_file, "w", encoding="utf-8") as f:
+                json.dump(rates_to_save, f, ensure_ascii=False, indent=2)
+
+            if rates_to_save:
+                with open(csv_file, "w", encoding="utf-8", newline="") as f:
+                    w = csv.DictWriter(f, fieldnames=sorted(rates_to_save[0].keys()))
+                    w.writeheader()
+                    w.writerows(rates_to_save)
+
+            print(f"\n💾 Сохранено: {json_file}")
+            print(f"💾 Сохранено: {csv_file}")
+        except Exception as e:
+            print(f"\n⚠️ Не удалось сохранить файлы: {e}")
+
         print(f"\n✅ Успешно получено {len(rates)} курсов")
         
         # Извлекаем лучшие
@@ -370,4 +393,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

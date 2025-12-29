@@ -101,8 +101,31 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Environments - расширенное покрытие всех .env файлов
 *.env
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.test
+.env.prod
+.env.dev
+.env.staging
+.env.backup
+
+# Miniapp specific env files
+miniapp/.env
+miniapp/.env.local
+miniapp/.env.production
+miniapp/.env.development
+miniapp/.env.test
+
+# Root level env files
+/.env
+/.env.prod
+/.env.local
+
 .venv
 env/
 venv/

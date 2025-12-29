@@ -1,0 +1,17 @@
+{
+  "name": "farcovka-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy:sepolia": "hardhat run script/deploy_vault_v2.js --network sepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.10.0",
+    "hardhat": "^2.22.10"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0"
+  }
+}

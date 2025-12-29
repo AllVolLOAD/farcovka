@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, Boolean
 from sqlalchemy.orm import mapped_column, Mapped
 
 from app.models import dto
@@ -14,6 +14,7 @@ class User(Base):
     last_name: Mapped[str | None]
     username: Mapped[str | None]
     is_bot: Mapped[bool] = mapped_column(default=False)
+    hot_access_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
 
     def __repr__(self):
         rez = (

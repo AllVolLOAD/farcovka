@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.filters import Command
 
 from app.services.notification_service import NotificationService
@@ -10,8 +10,7 @@ from app.services.multi_rate_service import MultiRateService  # Мультику
 from app.keyboards.main_menu import get_main_keyboard
 from app.config.main import BotConfig
 import logging
-
-logger = logging.getLogger(__name__)
+from app.keyboards.main_menu import get_main_keyboard, get_main_reply_keyboard
 
 
 logger = logging.getLogger(__name__)
@@ -23,76 +22,105 @@ user_last_table_message = {}
 user_last_table_message = {}
 
 
+@router.message(Command("wallet"))
+async def open_wallet_command(message: Message):
+    """Открывает Mini App кошелька"""
+    try:
+        # TODO: Replace with actual Mini App URL after deployment
+        miniapp_url = "https://yourdomain.com/miniapp"  # Change in production
+        
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+            InlineKeyboardButton(
+                text="🪙 Открыть кошелёк",
+                web_app=WebAppInfo(url=miniapp_url)
+            )
+        ]])
+        
+        wallet_message = (
+            "💼 <b>FarCovka Wallet</b>\n\n"
+            "🔐 Non-custodial кошелёк с WalletConnect\n"
+            "⚡ Sepolia Testnet\n"
+            "💱 Создание ордеров buy/sell\n\n"
+            "Нажмите кнопку ниже для открытия:"
+        )
+        
+        await message.answer(wallet_message, reply_markup=keyboard, parse_mode="HTML")
+        logger.info(f"✅ Wallet Mini App opened for user {message.from_user.id}")
+        
+    except Exception as e:
+        logger.error(f"❌ Error opening wallet: {e}")
+        await message.answer("❌ Ошибка открытия кошелька. Попробуйте позже.")
+
+
 @router.message(Command("start"))
 async def table_start(message: Message, session: AsyncSession, config: BotConfig):
-    """Показывает/обновляет табло с мультикурсами"""
+    """Показывает табло с мультикурсами и устанавливает Reply-клавиатуру"""
     try:
-        # Используем MultiRateService вместо RateService
         multi_service = MultiRateService(session)
         message_text = await multi_service.format_multi_rate_message()
 
         user_id = message.from_user.id
 
-        # Если есть предыдущее табло - редактируем его
-        if user_id in user_last_table_message:
-            try:
-                await message.bot.edit_message_text(
-                    chat_id=user_id,
-                    message_id=user_last_table_message[user_id],
-                    text=message_text,
-                    reply_markup=get_main_keyboard(),
-                    parse_mode="Markdown"  # Измените на Markdown если нужно
-                )
-                logger.info(f"✏️ Табло отредактировано для пользователя {user_id}")
-                return
-            except Exception as e:
-                # Если редактирование не удалось, удаляем из кэша
-                del user_last_table_message[user_id]
-                logger.warning(f"⚠️ Не удалось отредактировать табло: {e}")
-
-        # Отправляем новое сообщение
+        # Всегда отправляем новое сообщение с табло
         new_message = await message.answer(
             message_text,
-            reply_markup=get_main_keyboard(),
-            parse_mode="Markdown"  # Измените на Markdown если нужно
+            reply_markup=get_main_keyboard(),  # Инлайн-кнопки табло
+            parse_mode="Markdown"
         )
+
+        # КРИТИЧЕСКИ ВАЖНО: сохраняем ID сообщения
         user_last_table_message[user_id] = new_message.message_id
-        logger.info(f"📄 Новое табло создано для пользователя {user_id}")
+        logger.info(f"💾 Сохранен ID сообщения {new_message.message_id} для пользователя {user_id}")
+
+        logger.info(
+            f"📄 Новое табло создано для пользователя {user_id}. Всего пользователей: {len(user_last_table_message)}")
 
     except Exception as e:
         logger.error(f"❌ Ошибка табло: {e}")
         await message.answer("❌ Ошибка загрузки курсов")
 
+
 @router.callback_query(F.data == "update_rate")
 async def update_rate_handler(callback: CallbackQuery, session: AsyncSession):
-    """Обработчик кнопки 'Обновить курс'"""
+    """Обработчик кнопки 'Обновить курс' - отправляет уведомление админу"""
     try:
-        from app.services.queue_service import QueueService
+        user_id = callback.from_user.id
+        username = callback.from_user.username or callback.from_user.first_name or "Пользователь"
+        
+        # Отвечаем пользователю
+        await callback.answer("📨 Запрос отправлен админу", show_alert=False)
+        
+        # Отправляем уведомление админам
+        admin_ids = [7111883883, 780245577]  # Список админов
+        
+        notification_text = (
+            f"🔔 <b>Запрос на обновление курсов</b>\n\n"
+            f"👤 Пользователь: {username} (ID: {user_id})\n"
+            f"⏰ Время: {callback.message.date.strftime('%H:%M:%S')}\n\n"
+            f"💬 Используйте команду <code>/update_rates</code> для запуска парсеров"
+        )
+        
         from app.services.notification_service import NotificationService
-
-        queue_service = QueueService(session)
-        # Передаем session в NotificationService
         notification_service = NotificationService(callback.bot, session)
-
-        username = callback.from_user.username or callback.from_user.full_name
-        success, queue_size = await queue_service.add_to_queue(callback.from_user.id, username)
-
-        if success:
-            # Передаем session в метод уведомления
-            await notification_service.notify_admins_queue_full(session)
-
-            if queue_size >= 3:
-                message = "✅ Очередь заполнена! Админ уведомлен"
-            else:
-                message = f"✅ Вы в очереди! Ожидающих: {queue_size}/3"
-        else:
-            message = "⚠️ Вы уже в очереди!"
-
-        await callback.answer(message, show_alert=True)
-
+        
+        sent_count = 0
+        for admin_id in admin_ids:
+            try:
+                await callback.bot.send_message(
+                    admin_id,
+                    notification_text,
+                    parse_mode="HTML"
+                )
+                sent_count += 1
+                logger.info(f"✅ Уведомление отправлено админу {admin_id}")
+            except Exception as e:
+                logger.error(f"❌ Ошибка отправки админу {admin_id}: {e}")
+        
+        logger.info(f"📨 Запрос на обновление курсов от пользователя {user_id}, уведомлений отправлено: {sent_count}")
+        
     except Exception as e:
-        logger.error("Ошибка очереди: %s", e)
-        await callback.answer("🔄 Ошибка системы", show_alert=True)
+        logger.error(f"❌ Ошибка обработки запроса обновления: {e}")
+        await callback.answer("❌ Ошибка отправки запроса", show_alert=True)
 
 
 @router.callback_query(F.data == "fix_rate")
@@ -112,7 +140,7 @@ async def handle_new_rate(message: Message, session: AsyncSession):
         logger.info("Обработка new_rate от пользователя %s: %s", user_id, text)
 
         if text == "/new_rate":
-            # ... справка ...
+            await message.answer("❌ Укажите пары: `USD/RUB 82.80 83.30` или `USD/RUB 82.80 83.30, EUR/RUB 89.50 90.20`")
             return
 
         rate_pairs = await parse_rate_input(text)
@@ -130,12 +158,17 @@ async def handle_new_rate(message: Message, session: AsyncSession):
             buy_rate = pair_data['buy']
             sell_rate = pair_data['sell']
 
+            # ДОБАВИМ ДЕТАЛЬНУЮ ОТЛАДКУ
+            logger.info(f"🔄 Сохраняем курс в БД: {pair} buy={buy_rate} sell={sell_rate}")
+
             success = await multi_service.update_rate(
                 pair=pair,
                 buy_rate=buy_rate,
                 sell_rate=sell_rate,
                 admin_id=user_id
             )
+
+            logger.info(f"📊 Результат сохранения {pair}: {success}")
 
             if success:
                 results.append(f"✅ {pair}: {buy_rate}/{sell_rate}")
@@ -145,9 +178,32 @@ async def handle_new_rate(message: Message, session: AsyncSession):
         # Формируем итоговое сообщение
         if results:
             result_text = "📊 **Результат обновления:**\n" + "\n".join(results)
-            current_rates = await multi_service.format_multi_rate_message()
 
-            # ✅ РАСКОММЕНТИРУЙТЕ ЭТОТ БЛОК - уведомление очереди
+            # ПОЛУЧАЕМ ОБНОВЛЕННОЕ ТАБЛО
+            current_rates = await multi_service.format_multi_rate_message()
+            logger.info(f"📈 Обновленное табло: {current_rates}")
+
+            # КРИТИЧЕСКИ ВАЖНО: ОБНОВЛЯЕМ ТАБЛО У ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+            updated_count = 0
+            for user_id, message_id in list(user_last_table_message.items()):
+                try:
+                    await message.bot.edit_message_text(
+                        chat_id=user_id,
+                        message_id=message_id,
+                        text=current_rates,
+                        reply_markup=get_main_keyboard(),
+                        parse_mode="Markdown"
+                    )
+                    updated_count += 1
+                    logger.info(f"✅ Табло обновлено для пользователя {user_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Не удалось обновить табло для {user_id}: {e}")
+                    # Удаляем устаревшее сообщение из кэша
+                    del user_last_table_message[user_id]
+
+            logger.info(f"📊 Табло обновлено для {updated_count} пользователей")
+
+            # Уведомление очереди
             try:
                 from app.services.notification_service import NotificationService
                 notification_service = NotificationService(message.bot, session)
@@ -157,7 +213,16 @@ async def handle_new_rate(message: Message, session: AsyncSession):
                 logger.error("❌ Ошибка уведомления очереди: %s", e)
 
             await message.answer(result_text)
-            await message.answer(current_rates)
+
+            # Если это новый пользователь, показываем ему табло
+            if message.from_user.id not in user_last_table_message:
+                new_message = await message.answer(
+                    current_rates,
+                    reply_markup=get_main_keyboard(),
+                    parse_mode="Markdown"
+                )
+                user_last_table_message[message.from_user.id] = new_message.message_id
+
         else:
             await message.answer("❌ Не удалось обновить курсы")
 
@@ -275,3 +340,47 @@ async def clear_rates_handler(message: Message, session: AsyncSession):
     except Exception as e:
         logger.error("Ошибка очистки курсов: %s", e)
         await message.answer("❌ Ошибка очистки")
+
+@router.message(Command("wallet"))
+async def wallet_handler(message: Message):
+    """Обработчик команды Кошелек"""
+    wallet_text = """
+💰 <b>Кошелек</b>
+
+Ваши балансы:
+💵 USD: 0.00
+₽ RUB: 0.00
+
+Раздел в разработке...
+"""
+    await message.answer(wallet_text, parse_mode="HTML")
+
+@router.message(Command("rates"))
+async def rates_handler(message: Message, session: AsyncSession):
+    """Обработчик команды Табло - показывает актуальное табло"""
+    await table_start(message, session, message.bot)
+
+@router.message(Command("p2p"))
+async def p2p_handler(message: Message):
+    """Обработчик команды П2П"""
+    p2p_text = """
+🔁 <b>P2P Обмен</b>
+
+Торговая площадка для обмена между пользователями.
+
+Раздел в разработке...
+"""
+    await message.answer(p2p_text, parse_mode="HTML")
+
+@router.message(Command("settings"))
+async def settings_handler(message: Message):
+    """Обработчик команды Настройки"""
+    settings_text = f"""
+⚙️ <b>Настройки</b>
+
+ID: {message.from_user.id}
+Имя: {message.from_user.first_name}
+
+Раздел в разработке...
+"""
+    await message.answer(settings_text, parse_mode="HTML")

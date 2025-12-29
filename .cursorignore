@@ -1,0 +1,77 @@
+﻿# Environment files - исключаем все .env файлы
+**/.env
+**/.env.*
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.prod
+.env.dev
+.env.staging
+
+# Miniapp environment
+miniapp/.env
+miniapp/.env.local
+miniapp/.env.production
+miniapp/.env.development
+
+# Python environment files
+.env
+.env.prod
+.env.local
+.venv
+venv/
+env/
+ENV/
+
+# Config files with sensitive data
+config/config.yaml
+config/*.yaml
+!config/logging.yaml
+!tests/config/*.yaml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+/db_data
+
+# Logs
+*.log
+/log
+logs/
+
+# Secrets and keys
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Node modules
+node_modules/
+miniapp/node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Temporary files
+temp/
+tmp/
+*.tmp

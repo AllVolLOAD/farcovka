@@ -1,11 +1,12 @@
 # Основные зависимости FarCovka бота
 
 # Telegram Bot Framework
-aiogram==3.0.0
+aiogram==3.13.1
 
 # Database
 sqlalchemy>=2.0.0
 asyncpg>=0.28.0
+psycopg2-binary>=2.9.9
 alembic>=1.12.0
 
 # HTTP Client
@@ -15,12 +16,13 @@ aiohttp>=3.8.0
 beautifulsoup4>=4.12.0
 
 # Configuration
-pydantic>=2.0.0
+pydantic==2.8.2
+pydantic-core==2.20.1
 pydantic-settings>=2.0.0
 pyyaml>=6.0.0  # <-- ДОБАВИЛИ ЭТУ СТРОЧКУ!
 
 # Fix transitive dependency to satisfy aiogram 3.0.0
-typing-extensions~=4.7.1
+typing-extensions>=4.9.0
 
 # Scheduler
 apscheduler>=3.10.0
@@ -38,3 +40,10 @@ colorlog>=6.7.0
 # Headless scraping (RBC)
 selenium>=4.38.0
 playwright>=1.46.0
+
+# M1: FastAPI and Web3
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+web3>=6.11.0
+python-jose[cryptography]>=3.3.0
+eth-account>=0.10.0

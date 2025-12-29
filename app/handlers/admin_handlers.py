@@ -191,9 +191,11 @@ async def handle_admin_messages(message: Message, session: AsyncSession):
         except ValueError:
             await message.answer("❌ Введите число, например: 95.50")
 
-    # Тестовый триггер парсеров: /parse_now
-    if text.startswith('/parse_now') or text.startswith('/test_parsers'):
+    # Команда для запуска парсеров: /update_rates или /parse_now
+    if text.startswith('/update_rates') or text.startswith('/parse_now') or text.startswith('/test_parsers'):
         try:
+            await message.answer("🔄 Запускаю парсеры курсов...")
+            
             # Запускаем обновление из парсеров
             parser_service = ParserService(session)
             await parser_service.update_all_auto_rates()
@@ -203,9 +205,30 @@ async def handle_admin_messages(message: Message, session: AsyncSession):
             message_text = await multi_service.format_multi_rate_message_with_sources()
 
             await message.answer("✅ Парсеры отработали", parse_mode="HTML")
-            await message.answer(message_text)
+            await message.answer(message_text, parse_mode="Markdown")
+            
+            # Обновляем табло у всех пользователей
+            from app.handlers.table_handlers import user_last_table_message
+            updated_count = 0
+            for user_id, msg_id in list(user_last_table_message.items()):
+                try:
+                    await message.bot.edit_message_text(
+                        chat_id=user_id,
+                        message_id=msg_id,
+                        text=message_text,
+                        reply_markup=get_main_keyboard(),
+                        parse_mode="Markdown"
+                    )
+                    updated_count += 1
+                except Exception:
+                    # Удаляем устаревшие сообщения
+                    if user_id in user_last_table_message:
+                        del user_last_table_message[user_id]
+            
+            logger.info(f"📊 Табло обновлено для {updated_count} пользователей после парсинга")
+            
         except Exception as e:
-            logger.error(f"❌ Ошибка test parsers: {e}")
+            logger.error(f"❌ Ошибка запуска парсеров: {e}", exc_info=True)
             await message.answer("❌ Ошибка запуска парсеров")
 
 

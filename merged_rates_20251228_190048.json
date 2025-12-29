@@ -1,0 +1,443 @@
+{
+  "stats": {
+    "input_files": [
+      "rbc_all_banks_20251223_213153.json",
+      "rbc_all_banks_20251223_213401.json",
+      "rbc_all_banks_20251223_213446.json",
+      "rbc_all_banks_20251223_214216.json"
+    ],
+    "input_records_total": 112,
+    "input_records_bad": 0,
+    "output_banks": 3,
+    "output_offers_total": 28
+  },
+  "data": [
+    {
+      "bank": "АКБ \"Трансстройбанк\" (АО)",
+      "bank_norm": "трансстройбанк",
+      "currency": "USD",
+      "sources": [
+        "RBC"
+      ],
+      "offers_count": 3,
+      "best_buy": {
+        "value": 79.7,
+        "source": "RBC",
+        "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Теплый Стан\""
+      },
+      "best_sell": {
+        "value": 78.5,
+        "source": "RBC",
+        "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Теплый Стан\""
+      },
+      "offers": [
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Теплый Стан\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Домодедово\"",
+          "buy": 86.0,
+          "sell": 71.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АКБ \"Трансстройбанк\" (АО) ДО \"Внуково\"",
+          "buy": 86.5,
+          "sell": 71.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО)",
+      "bank_norm": "энерготрансбанк",
+      "currency": "USD",
+      "sources": [
+        "RBC"
+      ],
+      "offers_count": 6,
+      "best_buy": {
+        "value": 79.7,
+        "source": "RBC",
+        "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\""
+      },
+      "best_sell": {
+        "value": 78.5,
+        "source": "RBC",
+        "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\""
+      },
+      "offers": [
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Алтуфьево\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Теплый Стан\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Каширский\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Лефортово\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Белая Дача\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "КБ \"ЭНЕРГОТРАНСБАНК\" (АО) ДО \"Нижегородский\"",
+          "buy": 79.7,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    },
+    {
+      "bank": "АО КБ \"ЮНИСТРИМ\"",
+      "bank_norm": "юнистрим",
+      "currency": "USD",
+      "sources": [
+        "RBC"
+      ],
+      "offers_count": 19,
+      "best_buy": {
+        "value": 80.5,
+        "source": "RBC",
+        "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 167"
+      },
+      "best_sell": {
+        "value": 79.5,
+        "source": "RBC",
+        "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 27"
+      },
+      "offers": [
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 167",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 211",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 208",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 190",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 79",
+          "buy": 80.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 130",
+          "buy": 81.2,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 268",
+          "buy": 81.5,
+          "sell": 78.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 11",
+          "buy": 81.5,
+          "sell": 78.6,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 265",
+          "buy": 81.6,
+          "sell": 78.0,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 176",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 242",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 69",
+          "buy": 81.7,
+          "sell": 79.1,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 263",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 247",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ДО № 235",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 74",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 193",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 153",
+          "buy": 81.7,
+          "sell": 79.2,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        },
+        {
+          "source": "RBC",
+          "bank_raw": "АО КБ \"ЮНИСТРИМ\" ОО № 27",
+          "buy": 82.4,
+          "sell": 79.5,
+          "address": "",
+          "input_files": [
+            "rbc_all_banks_20251223_213153.json",
+            "rbc_all_banks_20251223_213401.json",
+            "rbc_all_banks_20251223_213446.json",
+            "rbc_all_banks_20251223_214216.json"
+          ]
+        }
+      ]
+    }
+  ]
+}

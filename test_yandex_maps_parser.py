@@ -33,7 +33,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def parse_yandex_maps_playwright(search_query: str = "Обмен валюты") -> Optional[List[Dict]]:
+async def parse_yandex_maps_playwright(
+    search_query: str = "Обмен валюты",
+    max_items: int = 450,
+) -> Optional[List[Dict]]:
     """
     Парсит точки обмена валют с Яндекс Карт используя Playwright для прокрутки страницы
     """
@@ -44,8 +47,11 @@ async def parse_yandex_maps_playwright(search_query: str = "Обмен валю�
         return None
     
     try:
-        # URL для поиска обмена валют в Москве
-        url = f"https://yandex.ru/maps/213/moscow/search/{search_query}"
+        # URL с зафиксированным положением карты и фильтром currency_exchange
+        url = (
+            "https://yandex.ru/maps/213/moscow/search/%D0%9E%D0%B1%D0%BC%D0%B5%D0%BD%20%D0%B2%D0%B0%D0%BB%D1%8E%D1%82%D1%8B"
+            "/filter/currency_exchange/?ll=37.872412%2C55.659328&sctx=ZAAAAAgBEAAaKAoSCZ5eKcsQz0JAEdOgaB7A4EtAEhIJA137Anqh8j8RmPxP%2Fu4d7D8iBgABAgMEBSgKOABA1QFIAWoCcnWCARNjdXJyZW5jeV9leGNoYW5nZToxnQHNzMw9oAEAqAEAvQEolMdvwgGOAe3X15iXA4io%2FOIr15yZw6UB7%2FL4ujGxoNqwcoWq%2F4ilBN6hsvoDuPXzsboGhcuWjoEH%2B%2FrmktAE4erqggST6NTFwQXi2%2FPMBdj%2Fgcxy1rGKg70D9K7JjZwE1LyT%2FbkD5%2Buw47UF6N3LgtoD6NuNnc8DvuyN5QPZ2rWq1QaUppCJ%2FwOu8aqCxwGU1f2%2FkAaCAhfQntCx0LzQtdC9INCy0LDQu9GO0YLRi4oCEzE4NDEwNTQwNiQxODQxMDUzOTiSAgCaAgxkZXNrdG9wLW1hcHOqAhoyNTc1MTgyODc0LDYwMDM2MTIsNjAwMzUyOdoCKAoSCQizCTAs50JAEV%2BUcI462ktAEhIJgHIwmwDD7j8RgM%2FAwFrS1z%2FgAgE%3D&sll=37.872412%2C55.659328&sspn=1.290894%2C0.477458&z=11"
+        )
         
         logger.info(f"🔍 Загружаем страницу: {url}")
         
@@ -163,14 +169,22 @@ async def parse_yandex_maps_playwright(search_query: str = "Обмен валю�
                 """)
                 logger.info(f"📊 Количество элементов после ожидания: {initial_count}")
             
-            # Прокручиваем страницу до конца для загрузки всех результатов
-            logger.info("📜 Прокручиваем страницу для загрузки всех результатов...")
+            # Прокручиваем список результатов до конца
+            logger.info("📜 Прокручиваем список результатов для загрузки всех карточек...")
+
+            # Авто-активация списка: клик в левую колонку и PageDown
+            try:
+                await page.click('ul.search-list-view__list', timeout=3000)
+                await page.keyboard.press('PageDown')
+                await asyncio.sleep(1)
+            except Exception:
+                pass
             
             import random
             
             last_items_count = initial_count
             scroll_attempts = 0
-            max_scroll_attempts = 1000  # Максимальное количество попыток прокрутки
+            max_scroll_attempts = 300  # Максимальное количество попыток прокрутки
             no_change_count = 0
             max_no_change = 10  # Количество попыток без изменений перед остановкой
             
@@ -181,7 +195,6 @@ async def parse_yandex_maps_playwright(search_query: str = "Обмен валю�
                         const items = document.querySelectorAll('li.search-snippet-view');
                         let count = 0;
                         items.forEach(item => {
-                            // Пропускаем placeholder элементы
                             if (!item.querySelector('.search-snippet-view__placeholder')) {
                                 count++;
                             }
@@ -189,34 +202,88 @@ async def parse_yandex_maps_playwright(search_query: str = "Обмен валю�
                         return count;
                     }
                 """)
+                if items_count >= max_items:
+                    logger.info(f"🛑 Достигнут лимит элементов: {items_count} >= {max_items}")
+                    break
+                if items_count == 0:
+                    no_change_count += 1
+                    logger.info(f"📊 Элементов: 0, без изменений: {no_change_count}/{max_no_change}")
+                    if no_change_count >= max_no_change:
+                        logger.info("✅ Элементы перестали приходить (0), останавливаемся")
+                        break
                 
-                # Получаем текущую позицию прокрутки и высоту страницы
+                # Определяем скролл-контейнер (левая колонка) или окно
                 scroll_info = await page.evaluate("""
                     () => {
+                        const selectors = [
+                            '.search-list-view__list',
+                            '.search-list-view__container',
+                            '.scroll__container',
+                            '.search-list-view__content'
+                        ];
+                        let target = null;
+                        for (const sel of selectors) {
+                            const el = document.querySelector(sel);
+                            if (el && el.scrollHeight > el.clientHeight + 5) {
+                                target = el;
+                                break;
+                            }
+                        }
+                        if (!target) {
+                            target = document.scrollingElement || document.documentElement;
+                        }
                         return {
-                            scrollTop: window.pageYOffset || document.documentElement.scrollTop,
-                            scrollHeight: document.body.scrollHeight,
-                            clientHeight: window.innerHeight
+                            scrollTop: target.scrollTop || 0,
+                            scrollHeight: target.scrollHeight || 0,
+                            clientHeight: target.clientHeight || window.innerHeight,
+                            useWindow: target === document.scrollingElement || target === document.documentElement,
+                            selector: target && target.className ? target.className.toString() : ''
                         };
                     }
                 """)
+                if scroll_attempts == 0:
+                    logger.info(f"🧭 Скролл-контейнер: {scroll_info.get('selector') or 'window'}")
                 
                 current_height = scroll_info['scrollHeight']
                 current_scroll = scroll_info['scrollTop']
                 viewport_height = scroll_info['clientHeight']
                 
-                # Прокручиваем плавно, не сразу до конца (как человек)
-                # Прокручиваем на 80% высоты экрана за раз
+                # Прокручиваем на 80% высоты контейнера/экрана за раз
                 scroll_step = int(viewport_height * 0.8)
                 target_scroll = current_scroll + scroll_step
                 
-                # Плавная прокрутка с анимацией
-                await page.evaluate(f"""
-                    window.scrollTo({{
-                        top: {target_scroll},
-                        behavior: 'smooth'
-                    }});
-                """)
+                if scroll_info['useWindow']:
+                    await page.evaluate(f"""
+                        window.scrollTo({{
+                            top: {target_scroll},
+                            behavior: 'smooth'
+                        }});
+                    """)
+                else:
+                    await page.evaluate(
+                        """
+                        (targetTop) => {
+                            const selectors = [
+                                '.search-list-view__list',
+                                '.search-list-view__container',
+                                '.scroll__container',
+                                '.search-list-view__content'
+                            ];
+                            let target = null;
+                            for (const sel of selectors) {
+                                const el = document.querySelector(sel);
+                                if (el && el.scrollHeight > el.clientHeight + 5) {
+                                    target = el;
+                                    break;
+                                }
+                            }
+                            if (target) {
+                                target.scrollTo({ top: targetTop, behavior: 'smooth' });
+                            }
+                        }
+                        """,
+                        target_scroll,
+                    )
                 
                 # Случайная пауза между 3-6 секундами для более естественного поведения
                 pause_time = random.uniform(3.0, 6.0)
@@ -235,6 +302,9 @@ async def parse_yandex_maps_playwright(search_query: str = "Обмен валю�
                         return count;
                     }
                 """)
+                if new_items_count >= max_items:
+                    logger.info(f"🛑 Достигнут лимит элементов: {new_items_count} >= {max_items}")
+                    break
                 
                 # Если количество элементов не изменилось
                 if new_items_count == last_items_count:
@@ -300,6 +370,15 @@ def _parse_yandex_maps_html(soup: BeautifulSoup) -> List[Dict]:
         logger.warning("⚠️ Основной селектор не сработал")
         return []
     
+    def _is_moscow(address: str, lat: Optional[float], lon: Optional[float]) -> bool:
+        addr = (address or "").lower()
+        if "москва" in addr or "г. москва" in addr or "г москва" in addr:
+            return True
+        if lat is None or lon is None:
+            return False
+        # Грубый bbox Москвы
+        return 55.45 <= lat <= 56.10 and 36.90 <= lon <= 38.20
+
     for idx, point in enumerate(exchange_points):
         try:
             # Пропускаем placeholder элементы
@@ -389,6 +468,9 @@ def _parse_yandex_maps_html(soup: BeautifulSoup) -> List[Dict]:
                 except (ValueError, AttributeError):
                     pass
             
+            if not _is_moscow(address, lat, lon):
+                continue
+
             result = {
                 'id': point_id,
                 'name': name,
@@ -411,17 +493,30 @@ def _parse_yandex_maps_html(soup: BeautifulSoup) -> List[Dict]:
             logger.debug(f"Ошибка парсинга элемента #{idx + 1}: {e}")
             continue
     
-    logger.info(f"✅ Успешно извлечено {len(results)} точек обмена валют")
-    return results
+    # Убираем дубликаты (по имени и адресу)
+    unique = []
+    seen = set()
+    for r in results:
+        key = ((r.get("name") or "").strip().lower(), (r.get("address") or "").strip().lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(r)
+    
+    if len(unique) != len(results):
+        logger.info(f"♻️ Убрано дубликатов: {len(results) - len(unique)}")
+    
+    logger.info(f"✅ Успешно извлечено {len(unique)} точек обмена валют")
+    return unique
 
 
-async def parse_yandex_maps(search_query: str = "Обмен валюты") -> Optional[List[Dict]]:
+async def parse_yandex_maps(search_query: str = "Обмен валюты", max_items: int = 450) -> Optional[List[Dict]]:
     """
     Парсит точки обмена валют с Яндекс Карт
     """
     # Пробуем использовать Playwright
     try:
-        results = await parse_yandex_maps_playwright(search_query)
+        results = await parse_yandex_maps_playwright(search_query, max_items=max_items)
         if results:
             return results
     except Exception as e:
@@ -490,9 +585,10 @@ async def main():
     print()
     
     search_query = "Обмен валюты"
+    max_items = 450
     
     # Парсим точки обмена валют
-    results = await parse_yandex_maps(search_query)
+    results = await parse_yandex_maps(search_query, max_items=max_items)
     
     if results:
         print(f"\n✅ Успешно получено {len(results)} точек обмена валют")

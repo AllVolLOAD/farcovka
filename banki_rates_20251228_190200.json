@@ -1,0 +1,266 @@
+[
+  {
+    "bank": "КАМКОМБАНК",
+    "currency": "USD",
+    "buy": 79.35,
+    "sell": 79.85,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк Казани",
+    "currency": "USD",
+    "buy": 79.15,
+    "sell": 79.89,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Экспобанк",
+    "currency": "USD",
+    "buy": 77.5,
+    "sell": 80.9,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "А7-финансы ПСБ",
+    "currency": "USD",
+    "buy": 78.02,
+    "sell": 80.95,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Газпромбанк",
+    "currency": "USD",
+    "buy": 76.0,
+    "sell": 83.1,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Альфа-Банк",
+    "currency": "USD",
+    "buy": 77.0,
+    "sell": 79.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Норвик Банк",
+    "currency": "USD",
+    "buy": 77.45,
+    "sell": 79.2,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "МТС Банк",
+    "currency": "USD",
+    "buy": 77.9,
+    "sell": 81.9,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк «Приморье»",
+    "currency": "USD",
+    "buy": 77.8,
+    "sell": 80.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Агророс Банк",
+    "currency": "USD",
+    "buy": 78.34,
+    "sell": 80.79,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Реалист Банк",
+    "currency": "USD",
+    "buy": 78.7,
+    "sell": 80.6,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Внешфинбанк",
+    "currency": "USD",
+    "buy": 78.8,
+    "sell": 80.2,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Т-Банк",
+    "currency": "USD",
+    "buy": 75.85,
+    "sell": 80.5,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "БыстроБанк",
+    "currency": "USD",
+    "buy": 78.6,
+    "sell": 78.85,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Трансстройбанк",
+    "currency": "USD",
+    "buy": 78.0,
+    "sell": 80.3,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Первый Инвестиционный Банк",
+    "currency": "USD",
+    "buy": 78.8,
+    "sell": 81.6,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "СОЦИУМ-БАНК",
+    "currency": "USD",
+    "buy": 78.03,
+    "sell": 80.39,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк РМП",
+    "currency": "USD",
+    "buy": 78.0,
+    "sell": 80.8,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Живаго банк",
+    "currency": "USD",
+    "buy": 77.5,
+    "sell": 79.45,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк ЗЕНИТ",
+    "currency": "USD",
+    "buy": 77.5,
+    "sell": 82.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Промсельхозбанк",
+    "currency": "USD",
+    "buy": 75.0,
+    "sell": 81.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Ак Барс Банк",
+    "currency": "USD",
+    "buy": 79.2,
+    "sell": 81.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "ПСБ",
+    "currency": "USD",
+    "buy": 79.13,
+    "sell": 82.73,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк «Санкт-Петербург»",
+    "currency": "USD",
+    "buy": 78.7,
+    "sell": 81.4,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Инго Банк",
+    "currency": "USD",
+    "buy": 78.6,
+    "sell": 78.6,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Солид Банк",
+    "currency": "USD",
+    "buy": 78.0,
+    "sell": 79.25,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "НС Банк",
+    "currency": "USD",
+    "buy": 77.0,
+    "sell": 80.5,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Металлинвестбанк",
+    "currency": "USD",
+    "buy": 76.7,
+    "sell": 79.5,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Уралсиб",
+    "currency": "USD",
+    "buy": 76.26,
+    "sell": 82.47,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Совкомбанк",
+    "currency": "USD",
+    "buy": 76.25,
+    "sell": 79.75,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Банк ДОМ.РФ",
+    "currency": "USD",
+    "buy": 76.0,
+    "sell": 86.0,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Ренессанс Банк",
+    "currency": "USD",
+    "buy": 74.8,
+    "sell": 83.9,
+    "address": "",
+    "source": "Banki"
+  },
+  {
+    "bank": "Райффайзен Банк",
+    "currency": "USD",
+    "buy": 89.0,
+    "sell": null,
+    "address": "",
+    "source": "Banki"
+  }
+]

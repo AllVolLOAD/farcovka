@@ -119,57 +119,69 @@ class MultiRateService:
             return {}
 
     async def format_multi_rate_message_with_sources(self) -> str:
-        """Форматирует табло с разделением по источникам и банками для РБК"""
+        """Форматирует табло со ВСЕМИ парами из БД в новом формате"""
         try:
-            # Получаем курсы USD/RUB из всех источников
-            rates_by_source = await self.get_rates_by_source("USD/RUB")
+            # Получаем ВСЕ курсы из базы
+            query = select(ExchangeRate)
+            result = await self.session.scalars(query)
+            all_rates = list(result)
 
-            if not rates_by_source:
-                return "🏦 Курсы пока не установлены"
+            if not all_rates:
+                return "Курсы пока не установлены"
 
-            message = "🏦 **Курсы USD/RUB:**\n\n"
+            message = ""
 
             def fmt_msk(dt: datetime) -> str:
                 if not dt:
                     return "—"
-                # Считаем, что в БД хранится UTC (naive)
                 if dt.tzinfo is None:
                     dt = dt.replace(tzinfo=timezone.utc)
                 return dt.astimezone(ZoneInfo("Europe/Moscow")).strftime("%H:%M")
 
-            # Админский курс
-            if 'admin' in rates_by_source:
-                buy, sell, updated, buy_bank, sell_bank = rates_by_source['admin']
-                time_str = fmt_msk(updated)
-                message += f"👤 **Обменник:**\n"
-                message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n\n"
+            # Группируем по парам
+            pairs = {}
+            for rate in all_rates:
+                if rate.pair not in pairs:
+                    pairs[rate.pair] = []
+                pairs[rate.pair].append(rate)
 
-            # ЦБ
-            if 'cbr' in rates_by_source:
-                buy, sell, updated, buy_bank, sell_bank = rates_by_source['cbr']
-                time_str = fmt_msk(updated)
-                message += f"🏛️ **ЦБ РФ:**\n"
-                message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n\n"
+            # Форматируем каждую пару
+            for pair, rates in pairs.items():
+                message += f"{pair}:\n"
 
-            # РБК - показываем банки
-            if 'rbc' in rates_by_source:
-                buy, sell, updated, buy_bank, sell_bank = rates_by_source['rbc']
-                time_str = fmt_msk(updated)
-                message += f"📰 **РБК:**\n"
+                # Админский курс - ПЕРВЫЙ как "ОФИС"
+                admin_rates = [r for r in rates if r.source == 'admin']
+                if admin_rates:
+                    rate = admin_rates[0]
+                    time_str = fmt_msk(rate.last_updated)
+                    message += f"ОФИС: {rate.buy_rate:.2f} / {rate.sell_rate:.2f} ({time_str})\n"
 
-                # Если есть информация о банках - показываем её
-                if buy_bank and sell_bank:
-                    message += f"   🏦 {buy_bank}\n"
-                    message += f"   💵 {buy:.2f} / {sell:.2f}\n"
-                    message += f"   🏦 {sell_bank}\n"
-                    message += f"   (в {time_str})\n"
-                else:
-                    message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n"
+                # ЦБ
+                cbr_rates = [r for r in rates if r.source == 'cbr']
+                if cbr_rates:
+                    rate = cbr_rates[0]
+                    time_str = fmt_msk(rate.last_updated)
+                    message += f"ЦБ: {rate.buy_rate:.2f} / {rate.sell_rate:.2f} ({time_str})\n"
 
-            return message
+                # РБК - два банка
+                rbc_buy_rates = [r for r in rates if r.source == 'rbc_buy']
+                if rbc_buy_rates:
+                    rate = rbc_buy_rates[0]
+                    time_str = fmt_msk(rate.last_updated)
+                    message += f"РБК (покупка): {rate.buy_rate:.2f} / {rate.sell_rate:.2f} ({time_str})\n"
+                
+                rbc_sell_rates = [r for r in rates if r.source == 'rbc_sell']
+                if rbc_sell_rates:
+                    rate = rbc_sell_rates[0]
+                    time_str = fmt_msk(rate.last_updated)
+                    message += f"РБК (продажа): {rate.buy_rate:.2f} / {rate.sell_rate:.2f} ({time_str})\n"
+
+                message += "\n"
+
+            return message.strip()
         except Exception as e:
             logger.error(f"❌ Ошибка форматирования: {e}")
-            return "🏦 Курсы временно недоступны"
+            return "Курсы временно недоступны"
 
 
     async def update_multiple_rates(self, rates_data: List[Dict], admin_id: int) -> Dict[str, bool]:
