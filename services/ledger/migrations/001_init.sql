@@ -50,3 +50,31 @@ CREATE TABLE IF NOT EXISTS cash_deposits (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cash_deposits_user ON cash_deposits(user_id);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    side TEXT NOT NULL CHECK (side IN ('buy', 'sell')),
+    market TEXT NOT NULL,
+    price NUMERIC(30, 8) NOT NULL,
+    amount NUMERIC(30, 8) NOT NULL,
+    remaining NUMERIC(30, 8) NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('open', 'filled', 'cancelled')) DEFAULT 'open',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    filled_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    cancelled_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS trades (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    buy_order_id UUID NOT NULL REFERENCES orders(id),
+    sell_order_id UUID NOT NULL REFERENCES orders(id),
+    market TEXT NOT NULL,
+    price NUMERIC(30, 8) NOT NULL,
+    amount NUMERIC(30, 8) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_market_status ON orders(market, status);
+CREATE INDEX IF NOT EXISTS idx_trades_market ON trades(market);

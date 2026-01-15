@@ -24,6 +24,9 @@ func (h *Handler) Router() http.Handler {
 	mux.HandleFunc("/readyz", h.handleReady)
 	mux.HandleFunc("/cash/deposits", h.handleCashDeposits)
 	mux.HandleFunc("/cash/deposits/", h.handleCashDepositAction)
+	mux.HandleFunc("/orders", h.handleOrders)
+	mux.HandleFunc("/orders/match", h.handleOrderMatch)
+	mux.HandleFunc("/orders/", h.handleOrderAction)
 	return mux
 }
 
