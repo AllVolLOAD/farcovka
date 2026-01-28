@@ -1,6 +1,7 @@
 import logging
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
+from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.models.multi_rate import ExchangeRate
@@ -13,9 +14,26 @@ class MultiRateService:
         self.session = session
 
     async def update_rate(self, pair: str, buy_rate: float, sell_rate: float, admin_id: int) -> bool:
-        """Обновляет курс покупки и продажи"""
+        """Обновляет курс покупки и продажи (админский)"""
+        return await self.update_rate_with_source(pair, buy_rate, sell_rate, "admin", admin_id)
+
+    async def update_rate_with_source(
+            self,
+            pair: str,
+            buy_rate: float,
+            sell_rate: float,
+            source: str,
+            admin_id: int = None,
+            buy_bank: str = None,  # Добавляем параметры банков
+            sell_bank: str = None
+    ) -> bool:
+        """Обновляет курс с указанием источника и банков"""
         try:
-            query = select(ExchangeRate).where(ExchangeRate.pair == pair)
+            # Ищем курс по паре И источнику
+            query = select(ExchangeRate).where(
+                ExchangeRate.pair == pair,
+                ExchangeRate.source == source
+            )
             existing = await self.session.scalar(query)
 
             if existing:
@@ -23,12 +41,20 @@ class MultiRateService:
                 existing.sell_rate = sell_rate
                 existing.last_admin_id = admin_id
                 existing.last_updated = datetime.utcnow()
+                # Обновляем банки если переданы
+                if buy_bank is not None:
+                    existing.buy_bank = buy_bank
+                if sell_bank is not None:
+                    existing.sell_bank = sell_bank
             else:
                 new_rate = ExchangeRate(
                     pair=pair,
                     buy_rate=buy_rate,
                     sell_rate=sell_rate,
-                    last_admin_id=admin_id
+                    last_admin_id=admin_id,
+                    source=source,
+                    buy_bank=buy_bank,  # Сохраняем банки
+                    sell_bank=sell_bank
                 )
                 self.session.add(new_rate)
 
@@ -36,7 +62,7 @@ class MultiRateService:
             return True
         except Exception as e:
             await self.session.rollback()
-            logger.error(f"❌ Ошибка обновления курса {pair}: {e}")
+            logger.error(f"❌ Ошибка обновления курса {pair} ({source}): {e}")
             return False
 
     async def get_rate(self, pair: str) -> tuple[float, float]:
@@ -76,23 +102,73 @@ class MultiRateService:
             return {}
 
     async def format_multi_rate_message(self) -> str:
-        """Форматирует: USD/RUB 81.89/82.80 (в 14:25)"""
-        try:
-            query = select(ExchangeRate)
-            result = await self.session.scalars(query)
-            rates = list(result)
+        """Форматирует: USD/RUB 81.89/82.80 (в 14:25) - использует новый формат с источниками"""
+        return await self.format_multi_rate_message_with_sources()
 
-            if not rates:
+    async def get_rates_by_source(self, pair: str) -> Dict[str, tuple]:
+        """Возвращает все курсы для пары по источникам"""
+        try:
+            query = select(ExchangeRate).where(ExchangeRate.pair == pair)
+            result = await self.session.scalars(query)
+            rates = {}
+            for rate in result:
+                rates[rate.source] = (rate.buy_rate, rate.sell_rate, rate.last_updated, rate.buy_bank, rate.sell_bank)
+            return rates
+        except Exception as e:
+            logger.error(f"❌ Ошибка получения курсов по источникам: {e}")
+            return {}
+
+    async def format_multi_rate_message_with_sources(self) -> str:
+        """Форматирует табло с разделением по источникам и банками для РБК"""
+        try:
+            # Получаем курсы USD/RUB из всех источников
+            rates_by_source = await self.get_rates_by_source("USD/RUB")
+
+            if not rates_by_source:
                 return "🏦 Курсы пока не установлены"
 
-            message = "🏦 **Текущие курсы:**\n\n"
-            for rate in rates:
-                time_str = rate.last_updated.strftime("%H:%M")
-                message += f"💵 {rate.pair} {rate.buy_rate}/{rate.sell_rate} (в {time_str})\n"
+            message = "🏦 **Курсы USD/RUB:**\n\n"
+
+            def fmt_msk(dt: datetime) -> str:
+                if not dt:
+                    return "—"
+                # Считаем, что в БД хранится UTC (naive)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt.astimezone(ZoneInfo("Europe/Moscow")).strftime("%H:%M")
+
+            # Админский курс
+            if 'admin' in rates_by_source:
+                buy, sell, updated, buy_bank, sell_bank = rates_by_source['admin']
+                time_str = fmt_msk(updated)
+                message += f"👤 **Обменник:**\n"
+                message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n\n"
+
+            # ЦБ
+            if 'cbr' in rates_by_source:
+                buy, sell, updated, buy_bank, sell_bank = rates_by_source['cbr']
+                time_str = fmt_msk(updated)
+                message += f"🏛️ **ЦБ РФ:**\n"
+                message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n\n"
+
+            # РБК - показываем банки
+            if 'rbc' in rates_by_source:
+                buy, sell, updated, buy_bank, sell_bank = rates_by_source['rbc']
+                time_str = fmt_msk(updated)
+                message += f"📰 **РБК:**\n"
+
+                # Если есть информация о банках - показываем её
+                if buy_bank and sell_bank:
+                    message += f"   🏦 {buy_bank}\n"
+                    message += f"   💵 {buy:.2f} / {sell:.2f}\n"
+                    message += f"   🏦 {sell_bank}\n"
+                    message += f"   (в {time_str})\n"
+                else:
+                    message += f"   {buy:.2f} / {sell:.2f} (в {time_str})\n"
 
             return message
         except Exception as e:
-            logger.error(f"❌ Ошибка форматирования сообщения: {e}")
+            logger.error(f"❌ Ошибка форматирования: {e}")
             return "🏦 Курсы временно недоступны"
 
 

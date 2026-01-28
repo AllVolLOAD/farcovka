@@ -4,19 +4,19 @@ from datetime import datetime
 
 Base = declarative_base()
 
-from sqlalchemy import Column, String, Float, DateTime, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
-
-Base = declarative_base()
-
 
 class ExchangeRate(Base):
     __tablename__ = "exchange_rates"
 
-    id = Column(Integer, primary_key=True, index=True)
-    pair = Column(String, unique=True, index=True)  # Например: "USD/RUB"
-    buy_rate = Column(Float, nullable=False)  # Курс покупки
-    sell_rate = Column(Float, nullable=False)  # Курс продажи
+    # существующие поля...
+    id = Column(Integer, primary_key=True)
+    pair = Column(String, nullable=False)
+    buy_rate = Column(Float, nullable=False)
+    sell_rate = Column(Float, nullable=False)
+    last_admin_id = Column(BigInteger, nullable=True)
+    source = Column(String, nullable=False, default="admin")
     last_updated = Column(DateTime, default=datetime.utcnow)
-    last_admin_id = Column(BigInteger)  # ID админа, обновившего курс
+
+    # ДОБАВИТЬ ЭТИ ПОЛЯ:
+    buy_bank = Column(String, nullable=True)  # Банк для курса покупки
+    sell_bank = Column(String, nullable=True)  # Банк для курса продажи
